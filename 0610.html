@@ -258,6 +258,73 @@
     .flatpickr-input:focus {
       background: rgba(0,255,231,0.18);
     }
+    .time-picker {
+      position: relative;
+      width: 140px;
+      font-family: sans-serif;
+    }
+    .picker-dropdown {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      width: 100%;
+      background: #222;
+      border: 1.5px solid #FFD600;
+      box-shadow: 0 2px 8px #FFD60033;
+      display: none;
+      z-index: 10;
+      border-radius: 8px;
+      padding: 10px 0;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    .scroll-list {
+      list-style-type: none;
+      max-height: 180px;
+      overflow-y: auto;
+      background: #222;
+      border-radius: 6px;
+      border: 1px solid #FFD60055;
+      width: 30px;
+    }
+    .scroll-list li {
+      align-items: center;
+      justify-content: center;
+      list-style-type: none;
+      padding: 8px 0;
+      margin-right: 10px;
+      text-align: center;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      font-size: 1.1em;
+    }
+    .scroll-list li.selected,
+    .scroll-list li:hover {
+      background: #FFD60033;
+      color: #222;
+    }
+    .list-label {
+      color: #FFD600;
+      text-align: center;
+      margin-bottom: 4px;
+      font-size: 0.95em;
+      letter-spacing: 0.03em;
+    }
+    .scroll-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    .scroll-list::-webkit-scrollbar-thumb {
+      background: #FFD600;
+      border-radius: 4px;
+    }
+    @-moz-document url-prefix() {
+      .scroll-list {
+        scrollbar-width: thin;
+        scrollbar-color: #FFD600 #222;
+      }
+    }
     .inputs-area button {
       font-size: 1.1em;
       padding: 10px 18px;
@@ -700,8 +767,74 @@
       <div id="calendar"></div>
       <div class="inputs-area">
         <label>
-          <span>時刻を選択</span>
-          <input id="time" type="text" placeholder="時刻を選択">
+          <div class="time-picker">
+            <button class="flatpickr-input" id="time-btn" type="button">
+              時間を選択 ▼
+            </button>
+            <input id="time" type="hidden" />
+            <div class="picker-dropdown" id="time-dropdown">
+              <div>
+                <div class="list-label">時間</div>
+                <ul class="scroll-list" id="hour-list"></ul>
+              </div>
+              <div>
+                <div class="list-label">分</div>
+                <ul class="scroll-list" id="minute-list"></ul>
+              </div>
+            </div>
+          </div>
+          <script>
+            const hourList = document.getElementById('hour-list');
+            for (let h = 0; h < 24; h++) {
+              const li = document.createElement('li');
+              li.textContent = h.toString().padStart(2, '0');
+              li.dataset.value = h;
+              hourList.appendChild(li);
+            }
+            const minuteList = document.getElementById('minute-list');
+            for (let m = 0; m < 60; m++) {
+              const li = document.createElement('li');
+              li.textContent = m.toString().padStart(2, '0');
+              li.dataset.value = m;
+              minuteList.appendChild(li);
+            }
+
+            let selectedHour = null;
+            let selectedMinute = null;
+
+            hourList.addEventListener('click', function (e) {
+              if (e.target.tagName === 'LI') {
+                hourList.querySelectorAll('li').forEach(li => li.classList.remove('selected'));
+                e.target.classList.add('selected');
+                selectedHour = e.target.textContent;
+                updateButton();
+              }
+            });
+            minuteList.addEventListener('click', function (e) {
+              if (e.target.tagName === 'LI') {
+                minuteList.querySelectorAll('li').forEach(li => li.classList.remove('selected'));
+                e.target.classList.add('selected');
+                selectedMinute = e.target.textContent;
+                updateButton();
+              }
+            });
+            function updateButton() {
+              if (selectedHour !== null && selectedMinute !== null) {
+                const timeStr = `${selectedHour}:${selectedMinute}`;
+                document.getElementById('time-btn').textContent = timeStr + ' ▼';
+                document.getElementById('time').value = timeStr;
+                document.getElementById('time-dropdown').style.display = 'none';
+              }
+            }
+            document.getElementById('time-btn').addEventListener('click', function (e) {
+              const dropdown = document.getElementById('time-dropdown');
+              dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+              e.stopPropagation();
+            });
+            document.addEventListener('click', function () {
+              document.getElementById('time-dropdown').style.display = 'none';
+            });
+          </script>
         </label>
         <button onclick="aiRouletteEvent()">AIに決めてもらう</button>
         <button onclick="showRandomEvents()">自分で選ぶ</button>
@@ -744,21 +877,7 @@
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
-  <script>        
-    // Flatpickrの初期化
-    function setupFlatpickr() {
-      flatpickr("#time", {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        locale: "ja",
-        minuteIncrement: 5,
-        allowInput: true
-      });
-    }
-    window.addEventListener("DOMContentLoaded", setupFlatpickr);
-    window.addEventListener("pageshow", setupFlatpickr);
+  <script>
 
             // イベント経験値＆キャンセル料金テーブル
     const eventXpTable = {

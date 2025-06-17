@@ -766,6 +766,7 @@
               <button class="flatpickr-input" id="time-btn" type="button">
                 時間を選択 ▼
               </button>
+              <input id="time" type="hidden" />
               <div class="picker-dropdown" id="time-dropdown">
                 <div>
                   <div class="list-label">時間</div>
@@ -824,9 +825,10 @@
               // ボタン表示更新
               function updateButton() {
                 if (selectedHour !== null && selectedMinute !== null) {
-                  document.getElementById(
-                    "time-btn"
-                  ).textContent = `${selectedHour}:${selectedMinute} ▼`;
+                  const timeStr = `${selectedHour}:${selectedMinute}`;
+                  document.getElementById("time-btn").textContent =
+                    timeStr + " ▼";
+                  document.getElementById("time").value = timeStr;
                   document.getElementById("time-dropdown").style.display =
                     "none";
                 }
