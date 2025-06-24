@@ -843,6 +843,13 @@
     </style>
   </head>
   <body>
+    <!-- 効果音 -->
+    <audio id="sound-select" src="workspace/決定ボタンを押す31.mp3" preload="auto"></audio>
+    <audio id="sound-cancel" src="workspace/キャンセル4.mp3" preload="auto"></audio>
+    <audio id="sound-levelup" src="workspace/データ表示3.mp3" preload="auto"></audio>
+    <audio id="sound-alert" src="workspace/警告音2.mp3" preload="auto"></audio>
+    <audio id="sound-charge" src="workspace/ゲージ回復1.mp3" preload="auto"></audio>
+    <audio id="sound-error" src="workspace/ビープ音4.mp3" preload="auto"></audio>
     <!-- リセットボタン -->
     <div class="reset-btns-fixed">
       <button class="event-reset-btn" onclick="resetEvents()">
@@ -1087,6 +1094,15 @@
     <!-- Flatpickr JS -->
     <script>
 
+      // 効果音再生関数
+      function playSound(id) {
+        const audio = document.getElementById(id);
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play();
+        }
+      }
+
       // イベント経験値＆キャンセル料金テーブル
       const eventXpTable = {
         ランチ: 10,
@@ -1205,11 +1221,13 @@
         localStorage.setItem("banchoUser", JSON.stringify(user));
         updateLevelUI();
         if (user.level > beforeLevel) {
+          playSound('sound-levelup');
           showBanchoToast(
             "💥",
             `レベルアップ！<br>「${eventName}」で${xp}XP獲得<br>番長レベルがLv.${user.level}になった！`
           );
         } else {
+          playSound('sound-charge');
           showBanchoToast("🔥", `「${eventName}」に参加！<br>+${xp}XPゲット！`);
         }
       }
@@ -1320,6 +1338,7 @@
         const endTime = document.getElementById("end-time").value;
         if (!selectedDate || !startTime || !endTime) {
           alert("カレンダーの日付と開始・終了時刻を選択してください。");
+          playSound('sound-error');
           return;
         }
         const today = new Date();
@@ -1328,6 +1347,7 @@
         selDate.setHours(0, 0, 0, 0);
         if (selDate < today) {
           alert("過去の日付は選択できません。");
+          playSound('sound-error');
           return;
         }
         // ルーレット候補を用意
@@ -1414,6 +1434,7 @@
         const endTime = document.getElementById("end-time").value;
         if (!selectedDate || !startTime || !endTime) {
           alert("カレンダーの日付と開始・終了時刻を選択してください。");
+          playSound('sound-error');
           return;
         }
         const today = new Date();
@@ -1422,6 +1443,7 @@
         selDate.setHours(0, 0, 0, 0);
         if (selDate < today) {
           alert("過去の日付は選択できません。");
+          playSound('sound-cancel');
           return;
         }
         const randomEvents = getRandomEvents(Object.keys(eventXpTable), 5);
@@ -1447,6 +1469,7 @@
             );
             showRegisteredEvents();
             renderCalendar(calYear, calMonth);
+            playSound('sound-select');
             const url = createGoogleCalUrl(
               event,
               selectedDate,
@@ -1517,6 +1540,7 @@
       }
 
       function openDangerModal(idx) {
+        playSound('sound-alert');
         cancelIdx = idx;
         // モーダルにキャンセル料金も表示
         const ev = registeredEvents[idx];
@@ -1547,6 +1571,7 @@
           showRegisteredEvents();
           renderCalendar(calYear, calMonth);
           closeDangerModal();
+          playSound('sound-error');
           showBanchoToast(
             "🥲",
             `キャンセルを確定しました<br><span style='font-size:0.95em;'>キャンセル料金：${
