@@ -1419,6 +1419,7 @@
                 endTime
               );
               window.open(url, "_blank");
+              playSound('sound-select');
               showBanchoToast(
                 "🤖",
                 `AI番長が選んだイベントは…<br><b>${finalEvent}</b> だ！<br>楽しんでこいよ！`
@@ -1571,7 +1572,7 @@
           showRegisteredEvents();
           renderCalendar(calYear, calMonth);
           closeDangerModal();
-          playSound('sound-error');
+          playSound('sound-cancel');
           showBanchoToast(
             "🥲",
             `キャンセルを確定しました<br><span style='font-size:0.95em;'>キャンセル料金：${
