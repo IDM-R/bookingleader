@@ -249,7 +249,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 18px;
+        gap: 20px;
         margin: 20px 0 10px 0;
         flex-wrap: wrap;
       }
@@ -277,11 +277,20 @@
       }
       .time-picker {
         position: relative;
+<<<<<<< HEAD
         width: 190px;
         font-family: sans-serif;
       }
       #time-btn {
         width: 100%; /* ここで調整 */
+=======
+        width: 160px; /* ボタンと並べても余裕が出る幅 */
+        font-family: sans-serif;
+      }
+      #start-time-btn,
+      #end-time-btn {
+        width: 100%;
+>>>>>>> 8df9907a003efee827a9bb175e974052cc1ee9d6
       }
       .picker-dropdown {
         position: absolute;
@@ -358,6 +367,7 @@
         box-shadow: 0 0 16px #ffd60044;
         font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
         transition: background 0.2s, box-shadow 0.2s;
+        min-width: 160px;
       }
       .inputs-area button:hover {
         background: linear-gradient(90deg, #d32f2f 0%, #ffd600 100%);
@@ -870,78 +880,159 @@
         <div class="inputs-area">
           <label>
             <div class="time-picker">
-              <button class="flatpickr-input" id="time-btn" type="button">
-                時間を選択 ▼
+              <button class="flatpickr-input" id="start-time-btn" type="button">
+                開始時刻 ▼
               </button>
-              <div class="picker-dropdown" id="time-dropdown">
+              <div class="picker-dropdown" id="start-time-dropdown">
                 <div>
                   <div class="list-label">時間</div>
-                  <ul class="scroll-list" id="hour-list"></ul>
+                  <ul class="scroll-list" id="start-hour-list"></ul>
                 </div>
                 <div>
                   <div class="list-label">分</div>
-                  <ul class="scroll-list" id="minute-list"></ul>
+                  <ul class="scroll-list" id="start-minute-list"></ul>
                 </div>
               </div>
             </div>
+            <input type="hidden" id="start-time" />
             <script>
-              const hourList = document.getElementById("hour-list");
+              const startHourList = document.getElementById("start-hour-list");
               for (let h = 0; h < 24; h++) {
                 const li = document.createElement("li");
                 li.textContent = h.toString().padStart(2, "0");
                 li.dataset.value = h;
-                hourList.appendChild(li);
+                startHourList.appendChild(li);
               }
-              const minuteList = document.getElementById("minute-list");
+              const startMinuteList = document.getElementById("start-minute-list");
               for (let m = 0; m < 60; m++) {
                 const li = document.createElement("li");
                 li.textContent = m.toString().padStart(2, "0");
                 li.dataset.value = m;
-                minuteList.appendChild(li);
+                startMinuteList.appendChild(li);
               }
 
-              let selectedHour = null;
-              let selectedMinute = null;
+              let startSelectedHour = null;
+              let startSelectedMinute = null;
 
-              hourList.addEventListener("click", function (e) {
+              startHourList.addEventListener("click", function (e) {
                 if (e.target.tagName === "LI") {
-                  hourList
+                  startHourList
                     .querySelectorAll("li")
                     .forEach((li) => li.classList.remove("selected"));
                   e.target.classList.add("selected");
-                  selectedHour = e.target.textContent;
-                  updateButton();
+                  startSelectedHour = e.target.textContent;
+                  updateStartButton();
                 }
               });
-              minuteList.addEventListener("click", function (e) {
+              startMinuteList.addEventListener("click", function (e) {
                 if (e.target.tagName === "LI") {
-                  minuteList
+                  startMinuteList
                     .querySelectorAll("li")
                     .forEach((li) => li.classList.remove("selected"));
                   e.target.classList.add("selected");
-                  selectedMinute = e.target.textContent;
-                  updateButton();
+                  startSelectedMinute = e.target.textContent;
+                  updateStartButton();
                 }
               });
-              function updateButton() {
-                if (selectedHour !== null && selectedMinute !== null) {
-                  const timeStr = `${selectedHour}:${selectedMinute}`;
-                  document.getElementById("time-btn").textContent = timeStr;
-                  document.getElementById("time").value = timeStr;
-                  document.getElementById("time-dropdown").style.display =
+              function updateStartButton() {
+                if (startSelectedHour !== null && startSelectedMinute !== null) {
+                  const timeStr = `${startSelectedHour}:${startSelectedMinute}`;
+                  document.getElementById("start-time-btn").textContent = timeStr;
+                  document.getElementById("start-time").value = timeStr;
+                  document.getElementById("start-time-dropdown").style.display =
                     "none";
                 }
               }
               document
-                .getElementById("time-btn")
+                .getElementById("start-time-btn")
                 .addEventListener("click", function (e) {
-                  const dropdown = document.getElementById("time-dropdown");
+                  const dropdown = document.getElementById("start-time-dropdown");
                   dropdown.style.display =
                     dropdown.style.display === "flex" ? "none" : "flex";
                   e.stopPropagation();
                 });
               document.addEventListener("click", function () {
-                document.getElementById("time-dropdown").style.display = "none";
+                document.getElementById("start-time-dropdown").style.display =
+                  "none";
+              });
+            </script>
+          </label>
+          <label>
+            <div class="time-picker">
+              <button class="flatpickr-input" id="end-time-btn" type="button">
+                終了時刻 ▼
+              </button>
+              <div class="picker-dropdown" id="end-time-dropdown">
+                <div>
+                  <div class="list-label">時間</div>
+                  <ul class="scroll-list" id="end-hour-list"></ul>
+                </div>
+                <div>
+                  <div class="list-label">分</div>
+                  <ul class="scroll-list" id="end-minute-list"></ul>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="end-time" />
+            <script>
+              const endHourList = document.getElementById("end-hour-list");
+              for (let h = 0; h < 24; h++) {
+                const li = document.createElement("li");
+                li.textContent = h.toString().padStart(2, "0");
+                li.dataset.value = h;
+                endHourList.appendChild(li);
+              }
+              const endMinuteList = document.getElementById("end-minute-list");
+              for (let m = 0; m < 60; m++) {
+                const li = document.createElement("li");
+                li.textContent = m.toString().padStart(2, "0");
+                li.dataset.value = m;
+                endMinuteList.appendChild(li);
+              }
+
+              let endSelectedHour = null;
+              let endSelectedMinute = null;
+
+              endHourList.addEventListener("click", function (e) {
+                if (e.target.tagName === "LI") {
+                  endHourList
+                    .querySelectorAll("li")
+                    .forEach((li) => li.classList.remove("selected"));
+                  e.target.classList.add("selected");
+                  endSelectedHour = e.target.textContent;
+                  updateEndButton();
+                }
+              });
+              endMinuteList.addEventListener("click", function (e) {
+                if (e.target.tagName === "LI") {
+                  endMinuteList
+                    .querySelectorAll("li")
+                    .forEach((li) => li.classList.remove("selected"));
+                  e.target.classList.add("selected");
+                  endSelectedMinute = e.target.textContent;
+                  updateEndButton();
+                }
+              });
+              function updateEndButton() {
+                if (endSelectedHour !== null && endSelectedMinute !== null) {
+                  const timeStr = `${endSelectedHour}:${endSelectedMinute}`;
+                  document.getElementById("end-time-btn").textContent = timeStr;
+                  document.getElementById("end-time").value = timeStr;
+                  document.getElementById("end-time-dropdown").style.display =
+                    "none";
+                }
+              }
+              document
+                .getElementById("end-time-btn")
+                .addEventListener("click", function (e) {
+                  const dropdown = document.getElementById("end-time-dropdown");
+                  dropdown.style.display =
+                    dropdown.style.display === "flex" ? "none" : "flex";
+                  e.stopPropagation();
+                });
+              document.addEventListener("click", function () {
+                document.getElementById("end-time-dropdown").style.display =
+                  "none";
               });
             </script>
           </label>
@@ -994,23 +1085,7 @@
       <button class="close-toast" onclick="hideBanchoToast()">閉じる</button>
     </div>
     <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
     <script>
-      // Flatpickrの初期化
-      function setupFlatpickr() {
-        flatpickr("#time", {
-          enableTime: true,
-          noCalendar: true,
-          dateFormat: "H:i",
-          time_24hr: true,
-          locale: "ja",
-          minuteIncrement: 5,
-          allowInput: true,
-        });
-      }
-      window.addEventListener("DOMContentLoaded", setupFlatpickr);
-      window.addEventListener("pageshow", setupFlatpickr);
 
       // イベント経験値＆キャンセル料金テーブル
       const eventXpTable = {
@@ -1076,7 +1151,7 @@
         let changed = false;
         registeredEvents.forEach((ev) => {
           if (ev.status === "reserved") {
-            const evDate = new Date(ev.date + "T" + ev.time);
+            const evDate = new Date(ev.date + "T" + ev.start);
             evDate.setMinutes(evDate.getMinutes() + 10);
             if (now > evDate) {
               ev.status = "autocanceled";
@@ -1229,12 +1304,11 @@
         return shuffled.slice(0, n);
       }
 
-      function createGoogleCalUrl(title, date, time) {
+      function createGoogleCalUrl(title, date, startTime, endTime) {
         const start =
-          date.replace(/-/g, "") + "T" + time.replace(":", "") + "00";
-        let [h, m] = time.split(":");
-        let endH = ("0" + (parseInt(h, 10) + 1)).slice(-2);
-        const end = date.replace(/-/g, "") + "T" + endH + m + "00";
+          date.replace(/-/g, "") + "T" + startTime.replace(":", "") + "00";
+        const end =
+          date.replace(/-/g, "") + "T" + endTime.replace(":", "") + "00";
         return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
           title
         )}&dates=${start}/${end}`;
@@ -1242,9 +1316,10 @@
 
       // ルーレット演出付きAI決定
       function aiRouletteEvent() {
-        const time = document.getElementById("time").value;
-        if (!selectedDate || !time) {
-          alert("カレンダーの日付と時刻を選択してください。");
+        const startTime = document.getElementById("start-time").value;
+        const endTime = document.getElementById("end-time").value;
+        if (!selectedDate || !startTime || !endTime) {
+          alert("カレンダーの日付と開始・終了時刻を選択してください。");
           return;
         }
         const today = new Date();
@@ -1306,7 +1381,8 @@
               modalBg.classList.remove("active");
               registeredEvents.push({
                 date: selectedDate,
-                time: time,
+                start: startTime,
+                end: endTime,
                 event: finalEvent,
                 status: "reserved",
               });
@@ -1316,7 +1392,12 @@
               );
               showRegisteredEvents();
               renderCalendar(calYear, calMonth);
-              const url = createGoogleCalUrl(finalEvent, selectedDate, time);
+              const url = createGoogleCalUrl(
+                finalEvent,
+                selectedDate,
+                startTime,
+                endTime
+              );
               window.open(url, "_blank");
               showBanchoToast(
                 "🤖",
@@ -1329,9 +1410,10 @@
       }
 
       function showRandomEvents() {
-        const time = document.getElementById("time").value;
-        if (!selectedDate || !time) {
-          alert("カレンダーの日付と時刻を選択してください。");
+        const startTime = document.getElementById("start-time").value;
+        const endTime = document.getElementById("end-time").value;
+        if (!selectedDate || !startTime || !endTime) {
+          alert("カレンダーの日付と開始・終了時刻を選択してください。");
           return;
         }
         const today = new Date();
@@ -1354,7 +1436,8 @@
           btn.onclick = () => {
             registeredEvents.push({
               date: selectedDate,
-              time: time,
+              start: startTime,
+              end: endTime,
               event: event,
               status: "reserved",
             });
@@ -1364,7 +1447,12 @@
             );
             showRegisteredEvents();
             renderCalendar(calYear, calMonth);
-            const url = createGoogleCalUrl(event, selectedDate, time);
+            const url = createGoogleCalUrl(
+              event,
+              selectedDate,
+              startTime,
+              endTime
+            );
             window.open(url, "_blank");
           };
           eventList.appendChild(btn);
@@ -1407,13 +1495,13 @@
           if (ev.status === "autocanceled")
             statusStr =
               ' <span class="autocanceled-label">[強制キャンセル]</span>';
-          html += `<li>${ev.date} ${ev.time} <strong>${ev.event}</strong>
+          html += `<li>${ev.date} ${ev.start}〜${ev.end} <strong>${ev.event}</strong>
           +${eventXpTable[ev.event] || 10}XP
           <span class="cancel-fee-label">キャンセル料金:${
             eventCancelFeeTable[ev.event] || 0
           }円</span>
           ${statusStr}`;
-          const eventDateTime = new Date(ev.date + "T" + ev.time);
+          const eventDateTime = new Date(ev.date + "T" + ev.start);
           // 参加ボタン: statusがreservedかつ今がイベント開始時刻以降かつ強制キャンセルでない
           if (ev.status === "reserved" && eventDateTime <= now) {
             html += `<button class="participate-btn" onclick="participateEvent(${idx})">参加</button>`;
