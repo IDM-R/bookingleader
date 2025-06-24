@@ -128,6 +128,7 @@
         letter-spacing: 0.13em;
         background: linear-gradient(90deg, #FFD600 0%, #00ffe7 60%, #6a82fb 100%);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 16px #FFD600, 0 0 32px #00ffe7;
         font-weight: bold;
@@ -573,6 +574,13 @@
     </style>
     </head>
     <body>
+    <!-- 効果音 -->
+    <audio id="sound-select" src="決定ボタンを押す31.mp3" preload="auto"></audio>
+    <audio id="sound-cancel" src="キャンセル4.mp3" preload="auto"></audio>
+    <audio id="sound-levelup" src="データ表示3.mp3" preload="auto"></audio>
+    <audio id="sound-alert" src="警告音2.mp3" preload="auto"></audio>
+    <audio id="sound-charge" src="ゲージ回復1.mp3" preload="auto"></audio>
+    <audio id="sound-error" src="ビープ音4.mp3" preload="auto"></audio>
     <!-- リセットボタン -->
     <div class="reset-btns-fixed">
         <button class="event-reset-btn" onclick="resetEvents()">イベント履歴リセット</button>
@@ -635,6 +643,14 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
     <script>
+        // 効果音再生関数
+    function playSound(id) {
+        const audio = document.getElementById(id);
+        if (audio) {
+            audio.currentTime = 0;
+            audio.play();
+        }
+    }
         // Flatpickrの初期化
         function setupFlatpickr() {
         flatpickr("#time", {
@@ -689,7 +705,31 @@
         });
         if (changed) {
             localStorage.setItem('registeredEvents', JSON.stringify(registeredEvents));
-            showBanchoToast("⚡", "開始時刻10分超過のため<br><b>番長判断で強制キャンセル！</b>");
+            showBanchoToast("⚡", "開始時刻10分超過のため<br><b>番長判断で強制キャンセル！</b>");            document.getElementById('dangerConfirmBtn').onclick = function() {
+                if (cancelIdx !== null) {
+                    const ev = registeredEvents[cancelIdx];
+                    registeredEvents[cancelIdx].status = "canceled";
+                    localStorage.setItem('registeredEvents', JSON.stringify(registeredEvents));
+                    showRegisteredEvents();
+                    renderCalendar(calYear, calMonth);
+                    playSound('sound-cancel'); 
+                    closeDangerModal();
+                    showBanchoToast("🥲", `キャンセルを確定しました<br><span style='font-size:0.95em;'>キャンセル料金：${eventCancelFeeTable[ev.event] || 0}円<br>番長はがっかりしてるが、またのご利用を待ってるぜ…</span>`);
+                }
+            };
+            registeredEvents.forEach((ev, idx) => {
+                if (ev.status === "autocanceled") {
+                    openDangerModal(idx);
+                    cancelIdx = idx;
+                    // モーダルにキャンセル料金も表示
+                    const ev = registeredEvents[idx];
+                    document.getElementById('dangerCancelFee').innerHTML =
+                        `<span>このイベントのキャンセル料金：<b>${eventCancelFeeTable[ev.event] || 0}円</b></span>`;
+                    document.getElementById('dangerModal').classList.add('active');
+                    playSound('sound-alert'); 
+                    setTimeout(()=>{document.getElementById('dangerConfirmBtn').focus();}, 100);
+                }
+            });
         }
         }
 
@@ -723,8 +763,10 @@
         localStorage.setItem('banchoUser', JSON.stringify(user));
         updateLevelUI();
         if (user.level > beforeLevel) {
+            playSound('sound-levelup'); 
             showBanchoToast("💥", `レベルアップ！<br>「${eventName}」で${xp}XP獲得<br>番長レベルがLv.${user.level}になった！`);
         } else {
+            playSound('sound-charge');
             showBanchoToast("🔥", `「${eventName}」に参加！<br>+${xp}XPゲット！`);
         }
         }
@@ -801,6 +843,7 @@
         const time = document.getElementById('time').value;
         if (!selectedDate || !time) {
             alert('カレンダーの日付と時刻を選択してください。');
+            playSound('sound-error');
             return;
         }
         const today = new Date();
@@ -809,6 +852,7 @@
         selDate.setHours(0,0,0,0);
         if (selDate < today) {
             alert('過去の日付は選択できません。');
+            playSound('sound-error');
             return;
         }
         const eventNames = Object.keys(eventXpTable);
@@ -835,6 +879,7 @@
         selDate.setHours(0,0,0,0);
         if (selDate < today) {
             alert('過去の日付は選択できません。');
+            playSound('sound-cancel');
             return;
         }
         const randomEvents = getRandomEvents(Object.keys(eventXpTable), 5);
@@ -851,6 +896,7 @@
             localStorage.setItem('registeredEvents', JSON.stringify(registeredEvents));
             showRegisteredEvents();
             renderCalendar(calYear, calMonth);
+            playSound('sound-select');
             const url = createGoogleCalUrl(event, selectedDate, time);
             window.open(url, '_blank');
             };
@@ -901,6 +947,7 @@
         }
 
         function openDangerModal(idx) {
+            playSound('sound-alert');   
         cancelIdx = idx;
         // モーダルにキャンセル料金も表示
         const ev = registeredEvents[idx];
@@ -923,8 +970,18 @@
             showRegisteredEvents();
             renderCalendar(calYear, calMonth);
             closeDangerModal();
-            showBanchoToast("🥲", `キャンセルを確定しました<br><span style='font-size:0.95em;'>キャンセル料金：${eventCancelFeeTable[ev.event] || 0}円<br>番長はがっかりしてるが、またのご利用を待ってるぜ…</span>`);
-        }
+            playSound('sound-error');            function openDangerModal(idx) {
+                cancelIdx = idx;
+                // モーダルにキャンセル料金も表示
+                const ev = registeredEvents[idx];
+                document.getElementById('dangerCancelFee').innerHTML =
+                    `<span>このイベントのキャンセル料金：<b>${eventCancelFeeTable[ev.event] || 0}円</b></span>`;
+                document.getElementById('dangerModal').classList.add('active');
+                playSound('sound-alert'); // ←この行を追加
+                setTimeout(()=>{document.getElementById('dangerConfirmBtn').focus();}, 100);
+            }
+        };
+
         };
 
         function resetEvents() {
@@ -948,21 +1005,4 @@
         // 初期化時に強制キャンセルチェック
         autoCancelExpiredEvents();
         updateLevelUI();
-        renderCalendar(calYear, calMonth);
-        showRegisteredEvents();
-
-        // 定期的に強制キャンセル判定（1分ごと）
-        setInterval(() => {
-        autoCancelExpiredEvents();
-        showRegisteredEvents();
-        }, 60000);
-
-        window.participateEvent = participateEvent;
-        window.openDangerModal = openDangerModal;
-        window.resetEvents = resetEvents;
-        window.resetLevel = resetLevel;
-        window.aiDecideEvent = aiDecideEvent;
-        window.showRandomEvents = showRandomEvents;
-    </script>
-    </body>
-</html>
+        renderCale
