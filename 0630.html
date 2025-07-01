@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BOOKINGBANCHO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Flatpickr CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=RocknRoll+One&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", "Roboto", "Arial", sans-serif;
+        background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+        color: #fff;
+        overflow-x: hidden;
+      }
+      .reset-btns-fixed {
+        position: fixed;
+        top: 18px;
+        right: 22px;
+        z-index: 101;
+        display: flex;
+        gap: 8px;
+      }
+      .level-reset-btn,
+      .event-reset-btn {
+        background: linear-gradient(90deg, #ffd600 0%, #d32f2f 100%);
+        color: #222;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: 0.95em;
+        cursor: pointer;
+        box-shadow: 0 0 6px #ffd60044;
+        transition: background 0.2s, color 0.2s;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        opacity: 0.88;
+      }
+      .level-reset-btn:hover,
+      .event-reset-btn:hover {
+        background: linear-gradient(90deg, #d32f2f 0%, #ffd600 100%);
+        color: #fff;
+        opacity: 1;
+      }
+      .level-area {
+        max-width: 900px;
+        margin: 30px auto 0 auto;
+        background: rgba(30, 40, 60, 0.7);
+        border-radius: 16px;
+        box-shadow: 0 4px 16px #ffd60044;
+        border: 2px solid #ffd600;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        position: relative;
+      }
+      .level-label {
+        font-size: 1.3em;
+        color: #ffd600;
+        font-weight: bold;
+        letter-spacing: 0.08em;
+      }
+      .xp-bar-bg {
+        flex: 1;
+        background: #222;
+        border-radius: 12px;
+        height: 22px;
+        margin: 0 10px;
+        overflow: hidden;
+        position: relative;
+        border: 1.5px solid #ffd600;
+      }
+      .xp-bar-fill {
+        background: linear-gradient(90deg, #ffd600 0%, #00ffe7 100%);
+        height: 100%;
+        border-radius: 12px 0 0 12px;
+        transition: width 0.4s;
+        box-shadow: 0 0 12px #ffd60088;
+      }
+      .xp-bar-label {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        top: 0;
+        left: 0;
+        color: #fff;
+        font-size: 1em;
+        font-weight: bold;
+        text-shadow: 0 0 4px #222;
+        line-height: 22px;
+        pointer-events: none;
+      }
+      .participate-btn {
+        margin-left: 10px;
+        background: linear-gradient(90deg, #00ffe7 0%, #ffd600 100%);
+        color: #222;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 18px;
+        font-size: 1em;
+        cursor: pointer;
+        box-shadow: 0 0 8px #ffd60044;
+        transition: background 0.2s, color 0.2s;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .participate-btn:hover {
+        background: linear-gradient(90deg, #ffd600 0%, #00ffe7 100%);
+        color: #d32f2f;
+      }
+      .container {
+        max-width: 900px;
+        margin: 40px auto 0 auto;
+        padding: 30px 10px 60px 10px;
+        background: rgba(30, 40, 60, 0.7);
+        border-radius: 24px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(8px);
+        border: 2.5px solid #ffd600;
+        position: relative;
+      }
+      .title-main {
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        font-size: 2.5em;
+        letter-spacing: 0.13em;
+        background: linear-gradient(
+          90deg,
+          #ffd600 0%,
+          #00ffe7 60%,
+          #6a82fb 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 16px #ffd600, 0 0 32px #00ffe7;
+        font-weight: bold;
+        margin: 0 0 24px 0;
+        text-transform: uppercase;
+        text-align: center;
+      }
+      .calendar-area {
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      .calendar-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 20px;
+      }
+      .calendar-controls button {
+        background: linear-gradient(90deg, #ffd600 0%, #00ffe7 100%);
+        color: #141e30;
+        border: none;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        font-size: 1.8em;
+        cursor: pointer;
+        box-shadow: 0 0 16px #ffd60044;
+        transition: background 0.2s, box-shadow 0.2s;
+      }
+      .calendar-controls button:hover {
+        background: linear-gradient(90deg, #d32f2f 0%, #ffd600 100%);
+        box-shadow: 0 0 24px #ffd60088;
+        color: #fff;
+      }
+      .calendar-table {
+        border-collapse: separate;
+        border-spacing: 8px;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        font-size: 1.3em;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 12px;
+        box-shadow: 0 4px 16px #ffd60022;
+        overflow: hidden;
+      }
+      .calendar-table th,
+      .calendar-table td {
+        width: 13%;
+        height: 60px;
+        text-align: center;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+        background: rgba(255, 255, 255, 0.07);
+        position: relative;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .calendar-table th {
+        color: #ffd600;
+        font-weight: bold;
+        background: transparent;
+        border: none;
+        font-size: 1.1em;
+        letter-spacing: 0.1em;
+        box-shadow: none;
+        cursor: default;
+      }
+      .calendar-table td.selected {
+        background: linear-gradient(90deg, #ffd600 0%, #00ffe7 100%);
+        color: #141e30;
+        box-shadow: 0 0 16px #ffd600;
+      }
+      .calendar-table td.today {
+        border: 2.5px solid #d32f2f;
+        box-shadow: 0 0 8px #d32f2f99;
+      }
+      .calendar-table td.has-event::after {
+        content: "";
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 10px;
+        height: 10px;
+        background: #ffd600;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #ffd600;
+      }
+      .calendar-table td:empty {
+        background: transparent;
+        cursor: default;
+        box-shadow: none;
+      }
+      .calendar-table td.disabled-date {
+        background: #222 !important;
+        color: #888 !important;
+        cursor: not-allowed !important;
+        opacity: 0.5;
+        pointer-events: none;
+        box-shadow: none !important;
+      }
+      .inputs-area {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin: 20px 0 10px 0;
+        flex-wrap: wrap;
+      }
+      .inputs-area label {
+        font-size: 1.2em;
+        color: #ffd600;
+        letter-spacing: 0.05em;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .flatpickr-input {
+        font-size: 1.3em;
+        padding: 8px 18px;
+        border-radius: 8px;
+        border: 2px solid #ffd600;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        outline: none;
+        box-shadow: 0 0 8px #ffd60055;
+        transition: background 0.2s;
+        width: 120px;
+        letter-spacing: 0.06em;
+      }
+      .flatpickr-input:focus {
+        background: rgba(0, 255, 231, 0.18);
+      }
+      .time-picker {
+        position: relative;
+        width: 190px;
+        font-family: sans-serif;
+      }
+      #start-time-btn,
+      #end-time-btn {
+        width: 100%;
+      }
+      .picker-dropdown {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        width: 100%;
+        background: #222;
+        border: 1.5px solid #ffd600;
+        box-shadow: 0 2px 8px #ffd60033;
+        display: none;
+        z-index: 10;
+        border-radius: 8px;
+        padding: 10px 0;
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+      .scroll-list {
+        list-style-type: none;
+        max-height: 180px;
+        overflow-y: auto;
+        background: #222;
+        border-radius: 6px;
+        border: 1px solid #ffd60055;
+        width: 30px;
+      }
+      .scroll-list li {
+        align-items: center;
+        justify-content: center;
+        list-style-type: none;
+        padding: 8px 0;
+        margin-right: 10px;
+        text-align: center;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-size: 1.1em;
+      }
+      .scroll-list li.selected,
+      .scroll-list li:hover {
+        background: #ffd60033;
+        color: #222;
+      }
+      .list-label {
+        color: #ffd600;
+        text-align: center;
+        margin-bottom: 4px;
+        font-size: 0.95em;
+        letter-spacing: 0.03em;
+      }
+      .scroll-list::-webkit-scrollbar {
+        width: 8px;
+      }
+      .scroll-list::-webkit-scrollbar-thumb {
+        background: #ffd600;
+        border-radius: 4px;
+      }
+      @-moz-document url-prefix() {
+        .scroll-list {
+          scrollbar-width: thin;
+          scrollbar-color: #ffd600 #222;
+        }
+      }
+      .inputs-area button {
+        font-size: 1.1em;
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(90deg, #ffd600 0%, #00ffe7 100%);
+        color: #141e30;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        box-shadow: 0 0 16px #ffd60044;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        transition: background 0.2s, box-shadow 0.2s;
+        min-width: 160px;
+      }
+      .inputs-area button:hover {
+        background: linear-gradient(90deg, #d32f2f 0%, #ffd600 100%);
+        box-shadow: 0 0 24px #ffd60088;
+        color: #fff;
+      }
+      .event-add-area {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+      .event-add-area input[type="text"] {
+        font-size: 1.2em;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 2px solid #00ffe7;
+        background: rgba(0, 255, 231, 0.1);
+        color: #fff;
+        outline: none;
+        box-shadow: 0 0 8px #00ffe755;
+        transition: background 0.2s, border-color 0.2s;
+        width: 70%;
+        max-width: 300px;
+      }
+      .event-add-area input[type="text"]:focus {
+        background: rgba(0, 255, 231, 0.18);
+        border-color: #ffd600;
+      }
+      .event-add-area button {
+        font-size: 1.1em;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(90deg, #00ffe7 0%, #ffd600 100%);
+        color: #141e30;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        box-shadow: 0 0 16px #00ffe744;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        transition: background 0.2s, box-shadow 0.2s;
+      }
+      .event-add-area button:hover {
+        background: linear-gradient(90deg, #ffd600 0%, #00ffe7 100%);
+        box-shadow: 0 0 24px #ffd60088;
+        color: #d32f2f;
+      }
+      .event-list {
+        margin: 30px 0 10px 0;
+        text-align: center;
+      }
+      .event-list h2 {
+        font-size: 1.3em;
+        color: #ffd600;
+        letter-spacing: 0.05em;
+        margin-bottom: 20px;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .event-list-container {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+      }
+      .event-btn {
+        font-size: 1.2em;
+        margin: 0;
+        padding: 18px 36px;
+        cursor: pointer;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(90deg, #d32f2f 0%, #ffd600 100%);
+        color: #fff;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+        box-shadow: 0 0 16px #ffd60044;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        outline: none;
+        position: relative;
+        border: 2px solid #ffd600;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 180px;
+      }
+      .event-btn.custom-event {
+        background: linear-gradient(90deg, #00ffe7 0%, #6a82fb 100%);
+        border: 2px solid #00ffe7;
+        color: #222;
+        box-shadow: 0 0 16px #00ffe744;
+      }
+      .event-btn.custom-event:hover {
+        background: linear-gradient(90deg, #6a82fb 0%, #00ffe7 100%);
+        box-shadow: 0 0 24px #00ffe788;
+        color: #fff;
+      }
+      .event-btn.custom-event .event-xp,
+      .event-btn.custom-event .event-cancel-fee {
+        color: #222;
+      }
+      .event-btn.custom-event .event-cancel-fee {
+        color: #d32f2f;
+      }
+      .event-btn .event-xp,
+      .event-btn .event-cancel-fee {
+        display: block;
+        font-size: 0.85em;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #ffd600;
+      }
+      .event-btn .event-cancel-fee {
+        color: #62047d;
+      }
+      .event-btn:hover,
+      .event-btn:focus {
+        background: linear-gradient(90deg, #ffd600 0%, #d32f2f 100%);
+        box-shadow: 0 0 24px #ffd60088;
+        transform: scale(1.07);
+        color: #d32f2f;
+      }
+      .event-btn .event-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .event-btn .event-actions button {
+        font-size: 0.7em;
+        padding: 4px 8px;
+        border-radius: 5px;
+        border: 1px solid #ffd600;
+        background: rgba(0, 0, 0, 0.4);
+        color: #ffd600;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      }
+      .event-btn .event-actions button:hover {
+        background: #ffd600;
+        color: #222;
+      }
+      /* --- ルーレット演出 --- */
+      .roulette-modal-bg {
+        display: none;
+        position: fixed;
+        z-index: 10002;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.75);
+        justify-content: center;
+        align-items: center;
+      }
+      .roulette-modal-bg.active {
+        display: flex;
+      }
+      .roulette-modal {
+        background: linear-gradient(135deg, #23272b 60%, #ffd600 100%);
+        border: 4px solid #ffd600;
+        border-radius: 20px;
+        color: #fff;
+        padding: 40px 38px 32px 38px;
+        min-width: 330px;
+        max-width: 90vw;
+        box-shadow: 0 0 32px #ffd60088, 0 0 8px #d32f2f99;
+        text-align: center;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .roulette-title {
+        font-size: 1.3em;
+        color: #ffd600;
+        font-weight: bold;
+        margin-bottom: 18px;
+        letter-spacing: 0.04em;
+      }
+      .roulette-list {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+        margin: 26px 0 16px 0;
+        flex-wrap: wrap;
+      }
+      .roulette-item {
+        padding: 16px 22px;
+        border-radius: 12px;
+        background: #23272b;
+        border: 3px solid #ffd600;
+        color: #ffd600;
+        font-size: 1.1em;
+        min-width: 90px;
+        min-height: 44px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: background 0.2s, color 0.2s, border 0.2s, transform 0.15s;
+        box-shadow: 0 0 12px #ffd60044;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .roulette-item.active {
+        background: linear-gradient(90deg, #ffd600 0%, #00ffe7 100%);
+        color: #d32f2f;
+        border: 3px solid #d32f2f;
+        transform: scale(1.15);
+        box-shadow: 0 0 32px #ffd60088;
+        z-index: 2;
+      }
+      .roulette-item .event-xp,
+      .roulette-item .event-cancel-fee {
+        font-size: 0.85em;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #ffd600;
+        text-shadow: 0 0 4px #222;
+      }
+      .roulette-item .event-cancel-fee {
+        color: #d32f2f;
+      }
+      .roulette-modal .roulette-final {
+        margin-top: 16px;
+        font-size: 1.2em;
+        color: #ffd600;
+        text-shadow: 0 0 8px #d32f2f;
+        font-weight: bold;
+      }
+      .roulette-modal .roulette-close-btn {
+        margin-top: 14px;
+        background: #ffd600;
+        color: #d32f2f;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 28px;
+        font-size: 1em;
+        cursor: pointer;
+        opacity: 0.9;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        font-weight: bold;
+        transition: background 0.2s, color 0.2s;
+      }
+      .roulette-modal .roulette-close-btn:hover {
+        background: #d32f2f;
+        color: #ffd600;
+        opacity: 1;
+      }
+      .registered-list {
+        margin: 40px 0 0 0;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 0 8px #ffd60022;
+        border: 2px solid #ffd600;
+      }
+      .registered-list h2 {
+        font-size: 1.2em;
+        color: #ffd600;
+        margin-bottom: 10px;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .registered-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .registered-list li {
+        font-size: 1.1em;
+        margin: 10px 0;
+        padding: 10px 0;
+        border-bottom: 1px solid #ffd60033;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .registered-list strong {
+        color: #d32f2f;
+        font-weight: bold;
+        letter-spacing: 0.03em;
+      }
+      .cancel-fee-label {
+        color: #d32f2f;
+        font-size: 0.92em;
+        margin-left: 8px;
+        font-weight: bold;
+      }
+      .cancel-btn {
+        color: #fff;
+        background: linear-gradient(90deg, #d32f2f 0%, #ffd600 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 7px 20px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+        box-shadow: 0 0 12px #ffd60044;
+        position: relative;
+        z-index: 1;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        border: 2px solid #ffd600;
+      }
+      .cancel-btn:hover {
+        background: linear-gradient(90deg, #ffd600 0%, #d32f2f 100%);
+        box-shadow: 0 0 18px #ffd600aa;
+        color: #d32f2f;
+      }
+      .autocanceled-label {
+        color: #ffd600;
+        font-weight: bold;
+        text-shadow: 0 0 8px #d32f2f;
+        margin-left: 8px;
+      }
+      body,
+      button,
+      input {
+        cursor: url("https://cdn.jsdelivr.net/gh/saint11/cursors@master/blue.cur"),
+          auto;
+      }
+      /* --- 警告モーダル・トーストのデザイン統一 --- */
+      .modal-bg {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-bg.active {
+        display: flex;
+      }
+      .modal-danger {
+        background: linear-gradient(135deg, #22100e 60%, #d32f2f 100%);
+        border: 4px solid #ffd600;
+        border-radius: 20px;
+        color: #fff;
+        padding: 38px 32px 32px 32px;
+        min-width: 330px;
+        max-width: 90vw;
+        box-shadow: 0 0 32px #ffd60088, 0 0 8px #d32f2f99;
+        text-align: center;
+        position: relative;
+        animation: shake 0.6s;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-10px);
+        }
+        40% {
+          transform: translateX(10px);
+        }
+        60% {
+          transform: translateX(-8px);
+        }
+        80% {
+          transform: translateX(8px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+      .danger-icon {
+        font-size: 3.5em;
+        color: #ffd600;
+        text-shadow: 0 0 18px #ffd600, 0 0 32px #fff, 0 0 8px #d32f2f;
+        margin-bottom: 10px;
+        animation: pulse 1s infinite alternate;
+      }
+      @keyframes pulse {
+        from {
+          text-shadow: 0 0 18px #ffd600, 0 0 32px #fff;
+        }
+        to {
+          text-shadow: 0 0 32px #ffd600, 0 0 48px #fff;
+        }
+      }
+      .modal-danger h3 {
+        font-size: 1.7em;
+        color: #ffd600;
+        margin-bottom: 10px;
+        font-weight: bold;
+        letter-spacing: 0.06em;
+        text-shadow: 0 0 12px #ffd600, 0 0 6px #d32f2f;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .modal-danger p {
+        font-size: 1.15em;
+        margin-bottom: 28px;
+        color: #fff;
+        font-weight: bold;
+        line-height: 1.7;
+        letter-spacing: 0.01em;
+        text-shadow: 0 0 6px #000;
+      }
+      .modal-danger .danger-cancel-fee {
+        color: #ffd600;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 18px;
+        display: block;
+        text-shadow: 0 0 6px #d32f2f;
+      }
+      .modal-danger .danger-actions {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+      }
+      .danger-confirm {
+        background: linear-gradient(90deg, #ffd600 0%, #d32f2f 100%);
+        color: #fff;
+        font-size: 1.15em;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        padding: 14px 36px;
+        cursor: pointer;
+        box-shadow: 0 0 16px #ffd600aa, 0 0 8px #d32f2f99;
+        transition: background 0.2s, box-shadow 0.2s;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .danger-cancel {
+        background: #222;
+        color: #ffd600;
+        font-size: 1.15em;
+        border: 2px solid #ffd600;
+        border-radius: 10px;
+        padding: 14px 36px;
+        cursor: pointer;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        transition: background 0.2s, color 0.2s;
+      }
+      .danger-confirm:hover {
+        background: linear-gradient(90deg, #d32f2f 0%, #ffd600 100%);
+        color: #ffd600;
+      }
+      .danger-cancel:hover {
+        background: #ffd600;
+        color: #d32f2f;
+      }
+      .bancho-toast {
+        display: none;
+        position: fixed;
+        z-index: 10001;
+        left: 50%;
+        top: 18%;
+        transform: translateX(-50%);
+        min-width: 320px;
+        background: linear-gradient(135deg, #23272b 60%, #ffd600 100%);
+        color: #fff;
+        border-radius: 20px;
+        border: 3px solid #ffd600;
+        box-shadow: 0 0 32px #ffd60088, 0 0 12px #d32f2f99;
+        text-align: center;
+        padding: 36px 30px 28px 30px;
+        font-size: 1.3em;
+        animation: fadeIn 0.4s;
+        opacity: 0.98;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+      }
+      .bancho-toast.show {
+        display: block;
+      }
+      .bancho-toast .toast-icon {
+        font-size: 2.8em;
+        margin-bottom: 12px;
+        display: block;
+        color: #ffd600;
+        text-shadow: 0 0 24px #ffd600, 0 0 12px #d32f2f;
+        animation: sad-bounce 1s;
+      }
+      @keyframes sad-bounce {
+        0% {
+          transform: scale(1.3);
+        }
+        60% {
+          transform: scale(0.9);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .bancho-toast .toast-message {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #ffd600;
+        text-shadow: 0 0 8px #d32f2f;
+        font-size: 1.1em;
+      }
+      .bancho-toast .close-toast {
+        margin-top: 8px;
+        background: #ffd600;
+        color: #d32f2f;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 28px;
+        font-size: 1em;
+        cursor: pointer;
+        opacity: 0.9;
+        font-family: "RocknRoll One", "Orbitron", "Segoe UI", Arial, sans-serif;
+        font-weight: bold;
+        transition: background 0.2s, color 0.2s;
+      }
+      .bancho-toast .close-toast:hover {
+        background: #d32f2f;
+        color: #ffd600;
+        opacity: 1;
+      }
+      @media (max-width: 700px) {
+        .container {
+          padding: 10px 2px 40px 2px;
+        }
+        .calendar-table {
+          font-size: 1em;
+        }
+        .inputs-area {
+          gap: 10px;
+          flex-direction: column;
+        }
+        .event-btn {
+          font-size: 1em;
+          padding: 12px 16px;
+        }
+        .calendar-table th,
+        .calendar-table td {
+          height: 38px;
+        }
+        .reset-btns-fixed {
+          top: 7px;
+          right: 3vw;
+        }
+        .modal-danger {
+          min-width: 90vw;
+          padding: 18px 4vw 18px 4vw;
+        }
+        .bancho-toast {
+          min-width: 90vw;
+          padding: 18px 4vw 18px 4vw;
+        }
+        .roulette-modal {
+          min-width: 90vw;
+          padding: 18px 4vw 18px 4vw;
+        }
+        .roulette-list {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .roulette-item {
+          min-width: 70px;
+          min-height: 36px;
+          font-size: 1em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 効果音 -->
+    <audio id="sound-select" src="workspace/決定ボタンを押す31.mp3" preload="auto"></audio>
+    <audio id="sound-cancel" src="workspace/キャンセル4.mp3" preload="auto"></audio>
+    <audio id="sound-levelup" src="workspace/データ表示3.mp3" preload="auto"></audio>
+    <audio id="sound-alert" src="workspace/警告音2.mp3" preload="auto"></audio>
+    <audio id="sound-charge" src="workspace/ゲージ回復1.mp3" preload="auto"></audio>
+    <audio id="sound-error" src="workspace/ビープ音4.mp3" preload="auto"></audio>
+    <!-- リセットボタン -->
+    <div class="reset-btns-fixed">
+      <button class="event-reset-btn" onclick="resetEvents()">
+        イベント履歴リセット
+      </button>
+      <button class="level-reset-btn" onclick="resetLevel()">
+        レベルリセット
+      </button>
+    </div>
+    <!-- レベル表示 -->
+    <div class="level-area">
+      <span class="level-label">番長レベル</span>
+      <div class="xp-bar-bg">
+        <div class="xp-bar-fill" id="xpBarFill" style="width: 0%"></div>
+        <div class="xp-bar-label" id="xpBarLabel"></div>
+      </div>
+      <span
+        id="levelNum"
+        style="font-size: 1.2em; color: #ffd600; font-weight: bold"
+        >Lv.1</span
+      >
+    </div>
+    <div class="container">
+      <div class="title-main">BOOKINGBANCHO</div>
+      <div class="calendar-area">
+        <div class="calendar-controls">
+          <button onclick="prevMonth()">&lt;</button>
+          <span
+            id="calendarTitle"
+            style="font-size: 1.5em; font-weight: bold; letter-spacing: 0.08em"
+          ></span>
+          <button onclick="nextMonth()">&gt;</button>
+        </div>
+        <div id="calendar"></div>
+        <div class="inputs-area">
+          <label>
+            <div class="time-picker">
+              <button class="flatpickr-input" id="start-time-btn" type="button">
+                開始時刻 ▼
+              </button>
+              <div class="picker-dropdown" id="start-time-dropdown">
+                <div>
+                  <div class="list-label">時間</div>
+                  <ul class="scroll-list" id="start-hour-list"></ul>
+                </div>
+                <div>
+                  <div class="list-label">分</div>
+                  <ul class="scroll-list" id="start-minute-list"></ul>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="start-time" />
+            <script>
+              const startHourList = document.getElementById("start-hour-list");
+              for (let h = 0; h < 24; h++) {
+                const li = document.createElement("li");
+                li.textContent = h.toString().padStart(2, "0");
+                li.dataset.value = h;
+                startHourList.appendChild(li);
+              }
+              const startMinuteList = document.getElementById("start-minute-list");
+              for (let m = 0; m < 60; m++) {
+                const li = document.createElement("li");
+                li.textContent = m.toString().padStart(2, "0");
+                li.dataset.value = m;
+                startMinuteList.appendChild(li);
+              }
+
+              let startSelectedHour = null;
+              let startSelectedMinute = null;
+
+              startHourList.addEventListener("click", function (e) {
+                if (e.target.tagName === "LI") {
+                  startHourList
+                    .querySelectorAll("li")
+                    .forEach((li) => li.classList.remove("selected"));
+                  e.target.classList.add("selected");
+                  startSelectedHour = e.target.textContent;
+                  updateStartButton();
+                }
+              });
+              startMinuteList.addEventListener("click", function (e) {
+                if (e.target.tagName === "LI") {
+                  startMinuteList
+                    .querySelectorAll("li")
+                    .forEach((li) => li.classList.remove("selected"));
+                  e.target.classList.add("selected");
+                  startSelectedMinute = e.target.textContent;
+                  updateStartButton();
+                }
+              });
+              function updateStartButton() {
+                if (startSelectedHour !== null && startSelectedMinute !== null) {
+                  const timeStr = `${startSelectedHour}:${startSelectedMinute}`;
+                  document.getElementById("start-time-btn").textContent = timeStr;
+                  document.getElementById("start-time").value = timeStr;
+                  document.getElementById("start-time-dropdown").style.display =
+                    "none";
+                }
+              }
+              document
+                .getElementById("start-time-btn")
+                .addEventListener("click", function (e) {
+                  const dropdown = document.getElementById("start-time-dropdown");
+                  dropdown.style.display =
+                    dropdown.style.display === "flex" ? "none" : "flex";
+                  e.stopPropagation();
+                });
+              document.addEventListener("click", function () {
+                document.getElementById("start-time-dropdown").style.display =
+                  "none";
+              });
+            </script>
+          </label>
+          <label>
+            <div class="time-picker">
+              <button class="flatpickr-input" id="end-time-btn" type="button">
+                終了時刻 ▼
+              </button>
+              <div class="picker-dropdown" id="end-time-dropdown">
+                <div>
+                  <div class="list-label">時間</div>
+                  <ul class="scroll-list" id="end-hour-list"></ul>
+                </div>
+                <div>
+                  <div class="list-label">分</div>
+                  <ul class="scroll-list" id="end-minute-list"></ul>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="end-time" />
+            <script>
+              const endHourList = document.getElementById("end-hour-list");
+              for (let h = 0; h < 24; h++) {
+                const li = document.createElement("li");
+                li.textContent = h.toString().padStart(2, "0");
+                li.dataset.value = h;
+                endHourList.appendChild(li);
+              }
+              const endMinuteList = document.getElementById("end-minute-list");
+              for (let m = 0; m < 60; m++) {
+                const li = document.createElement("li");
+                li.textContent = m.toString().padStart(2, "0");
+                li.dataset.value = m;
+                endMinuteList.appendChild(li);
+              }
+
+              let endSelectedHour = null;
+              let endSelectedMinute = null;
+
+              endHourList.addEventListener("click", function (e) {
+                if (e.target.tagName === "LI") {
+                  endHourList
+                    .querySelectorAll("li")
+                    .forEach((li) => li.classList.remove("selected"));
+                  e.target.classList.add("selected");
+                  endSelectedHour = e.target.textContent;
+                  updateEndButton();
+                }
+              });
+              endMinuteList.addEventListener("click", function (e) {
+                if (e.target.tagName === "LI") {
+                  endMinuteList
+                    .querySelectorAll("li")
+                    .forEach((li) => li.classList.remove("selected"));
+                  e.target.classList.add("selected");
+                  endSelectedMinute = e.target.textContent;
+                  updateEndButton();
+                }
+              });
+              function updateEndButton() {
+                if (endSelectedHour !== null && endSelectedMinute !== null) {
+                  const timeStr = `${endSelectedHour}:${endSelectedMinute}`;
+                  document.getElementById("end-time-btn").textContent = timeStr;
+                  document.getElementById("end-time").value = timeStr;
+                  document.getElementById("end-time-dropdown").style.display =
+                    "none";
+                }
+              }
+              document
+                .getElementById("end-time-btn")
+                .addEventListener("click", function (e) {
+                  const dropdown = document.getElementById("end-time-dropdown");
+                  dropdown.style.display =
+                    dropdown.style.display === "flex" ? "none" : "flex";
+                  e.stopPropagation();
+                });
+              document.addEventListener("click", function () {
+                document.getElementById("end-time-dropdown").style.display =
+                  "none";
+              });
+            </script>
+          </label>
+          <button onclick="aiRouletteEvent()">AIに決めてもらう</button>
+          <button onclick="showAllEventsList()">自分で選ぶ</button>
+        </div>
+      </div>
+      <div class="event-add-area">
+        <input type="text" id="newEventName" placeholder="新しいイベント名を入力" />
+        <button onclick="addCustomEvent()">イベント追加</button>
+      </div>
+      <div class="event-list" id="eventList">
+        <h2>イベント候補（1つ選んでくれよな）</h2>
+        <div class="event-list-container" id="eventListContainer"></div>
+      </div>
+      <div class="registered-list" id="registeredList"></div>
+    </div>
+    <!-- ルーレット演出モーダル -->
+    <div class="roulette-modal-bg" id="rouletteModalBg">
+      <div class="roulette-modal" id="rouletteModal">
+        <div class="roulette-title">AI番長がイベントを選んでいる…</div>
+        <div class="roulette-list" id="rouletteList"></div>
+        <div class="roulette-final" id="rouletteFinal"></div>
+      </div>
+    </div>
+    <!-- キャンセル警告モーダル -->
+    <div class="modal-bg" id="dangerModal">
+      <div class="modal-danger">
+        <div class="danger-icon">🔥</div>
+        <h3>キャンセルして本当に大丈夫か？</h3>
+        <span class="danger-cancel-fee" id="dangerCancelFee"></span>
+        <p>
+          <span style="color: #ffd600; font-size: 1.13em"
+            >この操作、冗談じゃ済まねぇぞ！</span
+          ><br />
+          <span style="color: #fff"
+            >イベントのキャンセルは<br /><b>番長の掟</b>に反する行為だ！</span
+          ><br />
+          <span style="color: #ffd600"
+            >キャンセル料金が発生する可能性あり。<br />よく考えろ、コラ！</span
+          >
+        </p>
+        <div class="danger-actions">
+          <button class="danger-confirm" id="dangerConfirmBtn">
+            それでもキャンセルする
+          </button>
+          <button class="danger-cancel" id="dangerCancelBtn">
+            やっぱやめとく
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-bg" id="deleteCustomEventModal">
+      <div class="modal-danger">
+        <div class="danger-icon">🗑️</div>
+        <h3>本当にこのイベントを削除するのか？</h3>
+        <p>
+          <span style="color:#ffd600; font-size:1.13em;">一度消したら戻らねぇぞ！</span><br />
+          <span style="color:#fff;" id="deleteEventNameConfirm"></span><br />
+          <span style="color:#ffd600;">よく考えろ、コラ！</span>
+        </p>
+        <div class="danger-actions">
+          <button class="danger-confirm" id="deleteConfirmBtn">それでも削除する</button>
+          <button class="danger-cancel" id="deleteCancelBtn">やっぱやめとく</button>
+        </div>
+      </div>
+    </div>
+    <!-- 共通トースト通知 -->
+    <div class="bancho-toast" id="banchoToast">
+      <div class="toast-icon" id="banchoToastIcon">🥲</div>
+      <div class="toast-message" id="banchoToastMsg"></div>
+      <button class="close-toast" onclick="hideBanchoToast()">閉じる</button>
+    </div>
+    <!-- Flatpickr JS -->
+    <script>
+
+      // 効果音再生関数
+      function playSound(id) {
+        const audio = document.getElementById(id);
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play();
+        }
+      }
+
+      // イベント経験値＆キャンセル料金テーブル
+      const defaultEventXpTable = {
+        ランチ: 10,
+        読書: 15,
+        散歩: 12,
+        映画鑑賞: 18,
+        料理: 20,
+        カフェで休憩: 8,
+        買い物: 10,
+        運動: 20,
+        ヨガ: 16,
+        友人とお茶: 10,
+        カラオケ: 14,
+        ボードゲーム: 13,
+        公園でピクニック: 16,
+        美術館に行く: 22,
+        図書館で勉強: 18,
+        音楽鑑賞: 10,
+        "手芸・DIY": 15,
+        家の掃除: 12,
+        お菓子作り: 15,
+        写真撮影: 14,
+      };
+      const defaultEventCancelFeeTable = {
+        ランチ: 200,
+        読書: 100,
+        散歩: 100,
+        映画鑑賞: 300,
+        料理: 400,
+        カフェで休憩: 100,
+        買い物: 150,
+        運動: 300,
+        ヨガ: 250,
+        友人とお茶: 150,
+        カラオケ: 350,
+        ボードゲーム: 200,
+        公園でピクニック: 250,
+        美術館に行く: 500,
+        図書館で勉強: 200,
+        音楽鑑賞: 120,
+        "手芸・DIY": 180,
+        家の掃除: 100,
+        お菓子作り: 200,
+        写真撮影: 180,
+      };
+
+      let eventXpTable = {};
+      let eventCancelFeeTable = {};
+      let customEvents = JSON.parse(localStorage.getItem("customEvents") || "[]");
+      const XP_PER_LEVEL = 100;
+      let user = JSON.parse(
+        localStorage.getItem("banchoUser") ||
+          '{"xp":0,"level":1,"participated":[] }'
+      );
+      let registeredEvents = JSON.parse(
+        localStorage.getItem("registeredEvents") || "[]"
+      );
+      let selectedDate = null;
+      let calYear = new Date().getFullYear();
+      let calMonth = new Date().getMonth();
+      let cancelIdx = null;
+      let deleteCustomEventIndex = null;
+
+      function loadAllEventTables() {
+        eventXpTable = { ...defaultEventXpTable };
+        eventCancelFeeTable = { ...defaultEventCancelFeeTable };
+        customEvents.forEach((ev) => {
+          eventXpTable[ev.name] = ev.xp;
+          eventCancelFeeTable[ev.name] = ev.cancelFee;
+        });
+      }
+      loadAllEventTables();
+
+      // 強制キャンセルチェック
+      function autoCancelExpiredEvents() {
+        const now = new Date();
+        let changed = false;
+        registeredEvents.forEach((ev) => {
+          if (ev.status === "reserved") {
+            const evDate = new Date(ev.date + "T" + ev.start);
+            evDate.setMinutes(evDate.getMinutes() + 10);
+            if (now > evDate) {
+              ev.status = "autocanceled";
+              changed = true;
+            }
+          }
+        });
+        if (changed) {
+          localStorage.setItem(
+            "registeredEvents",
+            JSON.stringify(registeredEvents)
+          );
+          showBanchoToast(
+            "⚡",
+            "開始時刻10分超過のため<br><b>番長判断で強制キャンセル！</b>"
+          );
+        }
+      }
+
+      function updateLevelUI() {
+        document.getElementById("levelNum").textContent = `Lv.${user.level}`;
+        const xpThisLevel = user.xp % XP_PER_LEVEL;
+        const percent = Math.min(100, (xpThisLevel / XP_PER_LEVEL) * 100);
+        document.getElementById("xpBarFill").style.width = percent + "%";
+        document.getElementById(
+          "xpBarLabel"
+        ).textContent = `${xpThisLevel} / ${XP_PER_LEVEL} XP`;
+      }
+
+      function showBanchoToast(icon, msg, duration = 4000) {
+        const toast = document.getElementById("banchoToast");
+        document.getElementById("banchoToastIcon").textContent = icon;
+        document.getElementById("banchoToastMsg").innerHTML = msg;
+        toast.classList.add("show");
+        toast.style.opacity = 1;
+        if (toast._timer) clearTimeout(toast._timer);
+        toast._timer = setTimeout(hideBanchoToast, duration);
+      }
+      function hideBanchoToast() {
+        const toast = document.getElementById("banchoToast");
+        toast.style.opacity = 0;
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 400);
+      }
+
+      function addXp(xp, eventName) {
+        let beforeLevel = user.level;
+        user.xp += xp;
+        user.level = Math.floor(user.xp / XP_PER_LEVEL) + 1;
+        localStorage.setItem("banchoUser", JSON.stringify(user));
+        updateLevelUI();
+        if (user.level > beforeLevel) {
+          playSound('sound-levelup');
+          showBanchoToast(
+            "💥",
+            `レベルアップ！<br>「${eventName}」で${xp}XP獲得<br>番長レベルがLv.${user.level}になった！`
+          );
+        } else {
+          playSound('sound-charge');
+          showBanchoToast("🔥", `「${eventName}」に参加！<br>+${xp}XPゲット！`);
+        }
+      }
+
+      function renderCalendar(year, month) {
+        const calendarDiv = document.getElementById("calendar");
+        const calendarTitle = document.getElementById("calendarTitle");
+        calendarDiv.innerHTML = "";
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const weeks = [];
+        let week = [];
+        for (let i = 0; i < firstDay.getDay(); i++) week.push("");
+        for (let d = 1; d <= lastDay.getDate(); d++) {
+          week.push(d);
+          if (week.length === 7) {
+            weeks.push(week);
+            week = [];
+          }
+        }
+        if (week.length > 0) {
+          while (week.length < 7) week.push("");
+          weeks.push(week);
+        }
+        let html =
+          '<table class="calendar-table"><tr><th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr>';
+        for (const w of weeks) {
+          html += "<tr>";
+          for (const d of w) {
+            let cls = "";
+            let dateStr = "";
+            let isPast = false;
+            if (d) {
+              dateStr = `${year}-${("0" + (month + 1)).slice(-2)}-${(
+                "0" + d
+              ).slice(-2)}`;
+              const cellDate = new Date(year, month, d);
+              cellDate.setHours(0, 0, 0, 0);
+              if (cellDate < today) {
+                cls += " disabled-date";
+                isPast = true;
+              }
+              if (selectedDate === dateStr) cls += " selected";
+              if (
+                today.getFullYear() === year &&
+                today.getMonth() === month &&
+                today.getDate() === d
+              )
+                cls += " today";
+              if (registeredEvents.some((ev) => ev.date === dateStr))
+                cls += " has-event";
+              html += `<td class="${cls}" tabindex="${isPast ? "-1" : "0"}" ${
+                isPast
+                  ? ""
+                  : `onclick="selectDate('${dateStr}')" onkeydown="if(event.key==='Enter'){selectDate('${dateStr}');}"`
+              }>${d}</td>`;
+            } else {
+              html += "<td></td>";
+            }
+          }
+          html += "</tr>";
+        }
+        html += "</table>";
+        calendarDiv.innerHTML = html;
+        calendarTitle.textContent = `${year}年${month + 1}月`;
+      }
+      function prevMonth() {
+        calMonth--;
+        if (calMonth < 0) {
+          calMonth = 11;
+          calYear--;
+        }
+        renderCalendar(calYear, calMonth);
+      }
+      function nextMonth() {
+        calMonth++;
+        if (calMonth > 11) {
+          calMonth = 0;
+          calYear++;
+        }
+        renderCalendar(calYear, calMonth);
+      }
+      function selectDate(dateStr) {
+        selectedDate = dateStr;
+        renderCalendar(calYear, calMonth);
+      }
+
+      function getRandomEvents(arr, n) {
+        const shuffled = arr.slice().sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, n);
+      }
+
+      function createGoogleCalUrl(title, date, startTime, endTime) {
+        const start =
+          date.replace(/-/g, "") + "T" + startTime.replace(":", "") + "00";
+        const end =
+          date.replace(/-/g, "") + "T" + endTime.replace(":", "") + "00";
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+          title
+        )}&dates=${start}/${end}`;
+      }
+
+      // ルーロレット演出付きAI決定
+      function aiRouletteEvent() {
+        const startTime = document.getElementById("start-time").value;
+        const endTime = document.getElementById("end-time").value;
+        if (!selectedDate || !startTime || !endTime) {
+          alert("カレンダーの日付と開始・終了時刻を選択してください。");
+          playSound('sound-error');
+          return;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selDate = new Date(selectedDate);
+        selDate.setHours(0, 0, 0, 0);
+        if (selDate < today) {
+          alert("過去の日付は選択できません。");
+          playSound('sound-error');
+          return;
+        }
+        // 利用可能なイベントから候補を用意
+        const allAvailableEventNames = Array.from(
+          new Set(
+            Object.keys(eventXpTable).filter(
+              (name) => !registeredEvents.some((regEv) => regEv.event === name)
+            )
+          )
+        );
+        if (allAvailableEventNames.length === 0) {
+          showBanchoToast(
+            "😔",
+            "選択できるイベントがないぜ！<br>新しいイベントを追加してくれ！"
+          );
+          return;
+        }
+        const rouletteCandidates = getRandomEvents(allAvailableEventNames, 5);
+        const finalIdx = Math.floor(Math.random() * rouletteCandidates.length);
+
+        // モーダル表示
+        const modalBg = document.getElementById("rouletteModalBg");
+        const rList = document.getElementById("rouletteList");
+        const rFinal = document.getElementById("rouletteFinal");
+        rFinal.textContent = "";
+        rList.innerHTML = "";
+        modalBg.classList.add("active");
+
+        // ルーレットリスト描画
+        rouletteCandidates.forEach((event, idx) => {
+          const div = document.createElement("div");
+          div.className = "roulette-item" + (idx === 0 ? " active" : "");
+          div.innerHTML = `${event}
+          <span class="event-xp">+${eventXpTable[event]}XP</span>
+          <span class="event-cancel-fee">キャンセル料金：${eventCancelFeeTable[event]}円</span>`;
+          rList.appendChild(div);
+        });
+
+        // ルーレットアニメーション
+        let current = 0;
+        let rounds = 0;
+        let totalRounds = 18 + finalIdx; // 最低3周＋ランダム
+        let speed = 80;
+        function spin() {
+          // remove all active
+          for (let i = 0; i < rList.children.length; i++) {
+            rList.children[i].classList.remove("active");
+          }
+          let idx = current % rouletteCandidates.length;
+          rList.children[idx].classList.add("active");
+          if (rounds < totalRounds) {
+            current++;
+            rounds++;
+            if (rounds > totalRounds - 7) speed += 25; // 減速
+            setTimeout(spin, speed);
+          } else {
+            // 決定
+            let decidedIdx = totalRounds % rouletteCandidates.length;
+            let finalEvent = rouletteCandidates[decidedIdx];
+            rFinal.innerHTML = `AI番長が選んだイベントは…<br><b>${finalEvent}</b> だ！<br>楽しんでこいよ！`;
+
+            // 1.5秒後にモーダルを自動で閉じてイベント登録＆Googleカレンダー追加
+            setTimeout(() => {
+              modalBg.classList.remove("active");
+              registerEventAndAddToCalendar(finalEvent, selectedDate, startTime, endTime);
+              removeCustomEventFromProposed(finalEvent);
+              showAllEventsList();
+              playSound('sound-select');
+              showBanchoToast(
+                "🤖",
+                `AI番長が選んだイベントは…<br><b>${finalEvent}</b> だ！<br>楽しんでこいよ！`
+              );
+            }, 1500);
+          }
+        }
+        spin();
+      }
+
+      function showAllEventsList() {
+        const startTime = document.getElementById("start-time").value;
+        const endTime = document.getElementById("end-time").value;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selDate = new Date(selectedDate);
+        selDate.setHours(0, 0, 0, 0);
+        if (selectedDate && selDate < today) {
+          alert("過去の日付は選択できません。");
+          return;
+        }
+
+        const container = document.getElementById("eventListContainer");
+        container.innerHTML = "";
+
+        const allAvailableEventNames = Array.from(
+          new Set(
+            Object.keys(eventXpTable).filter(
+              (name) => !registeredEvents.some((regEv) => regEv.event === name)
+            )
+          )
+        );
+
+        allAvailableEventNames.forEach((eventName) => {
+          const btn = document.createElement("button");
+          const isCustom = customEvents.some((ce) => ce.name === eventName);
+          btn.className = "event-btn" + (isCustom ? " custom-event" : "");
+          btn.innerHTML = `${eventName}
+          <span class="event-xp">+${eventXpTable[eventName]}XP</span>
+          <span class="event-cancel-fee">キャンセル料金：${eventCancelFeeTable[eventName]}円</span>`;
+
+          if (isCustom) {
+            const index = customEvents.findIndex((ce) => ce.name === eventName);
+            btn.innerHTML += `
+            <div class="event-actions">
+              <button onclick="event.stopPropagation(); openDeleteCustomEventModal(${index});">削除</button>
+              <button onclick="event.stopPropagation(); editCustomEvent(${index});">編集</button>
+            </div>`;
+          }
+
+          btn.onclick = (e) => {
+            if (e.target.tagName === 'BUTTON' && e.target.closest('.event-actions')) {
+              return;
+            }
+            if (!selectedDate || !startTime || !endTime) {
+              alert('カレンダーの日付と開始・終了時刻を選択してからイベントを選んでください。');
+              return;
+            }
+            registerEventAndAddToCalendar(eventName, selectedDate, startTime, endTime);
+            removeCustomEventFromProposed(eventName);
+            showAllEventsList();
+          };
+        container.appendChild(btn);
+      });
+      }
+
+      function registerEventAndAddToCalendar(eventName, date, start, end) {
+        registeredEvents.push({
+          date: date,
+          start: start,
+          end: end,
+          event: eventName,
+          status: "reserved",
+        });
+        localStorage.setItem("registeredEvents", JSON.stringify(registeredEvents));
+        showRegisteredEvents();
+        renderCalendar(calYear, calMonth);
+        const url = createGoogleCalUrl(eventName, date, start, end);
+        window.open(url, "_blank");
+      }
+
+      function addCustomEvent() {
+        const input = document.getElementById("newEventName");
+        const eventName = input.value.trim();
+        if (eventName === "") {
+          showBanchoToast("⚠️", "イベント名を入力してくれよな！");
+          return;
+        }
+        if (Object.keys(eventXpTable).includes(eventName)) {
+          showBanchoToast("😅", `「${eventName}」は既に存在しているぜ！<br>別の名前にしてくれ！`);
+          return;
+        }
+        const xp = Math.floor(Math.random() * 20) + 5;
+        const cancelFee = Math.floor(Math.random() * 400) + 100;
+        const newCustomEvent = { name: eventName, xp: xp, cancelFee: cancelFee };
+        customEvents.push(newCustomEvent);
+        localStorage.setItem("customEvents", JSON.stringify(customEvents));
+        loadAllEventTables();
+        input.value = "";
+        showBanchoToast("🎉", `「${eventName}」を追加したぜ！<br>XP: ${xp}, キャンセル料金: ${cancelFee}円`);
+        showAllEventsList();
+      }
+
+      function editCustomEvent(index) {
+        const eventToEdit = customEvents[index];
+        const newName = prompt(`「${eventToEdit.name}」を新しいイベント名に編集するぜ！入力しろ！`, eventToEdit.name);
+        if (newName === null || newName.trim() === "") return;
+        const trimmed = newName.trim();
+        if (trimmed === eventToEdit.name) {
+          showBanchoToast("🤔", "変更されてねぇじゃねぇか！<br>同じ名前だぜ！");
+          return;
+        }
+        if (Object.keys(eventXpTable).some((n) => n === trimmed && n !== eventToEdit.name)) {
+          showBanchoToast("😅", `「${trimmed}」は既に存在しているぜ！<br>別の名前にしてくれ！`);
+          return;
+        }
+        eventToEdit.name = trimmed;
+        localStorage.setItem("customEvents", JSON.stringify(customEvents));
+        loadAllEventTables();
+        showBanchoToast("✏️", `「${trimmed}」に編集したぜ！`);
+        showAllEventsList();
+      }
+
+      function openDeleteCustomEventModal(index) {
+        deleteCustomEventIndex = index;
+        const name = customEvents[index].name;
+        document.getElementById("deleteEventNameConfirm").textContent = `「${name}」を削除するぞ。`;
+        document.getElementById("deleteCustomEventModal").classList.add("active");
+        setTimeout(() => { document.getElementById("deleteConfirmBtn").focus(); }, 100);
+      }
+
+      function closeDeleteCustomEventModal() {
+        document.getElementById("deleteCustomEventModal").classList.remove("active");
+        deleteCustomEventIndex = null;
+      }
+
+      document.getElementById("deleteCancelBtn").onclick = closeDeleteCustomEventModal;
+      document.getElementById("deleteConfirmBtn").onclick = function () {
+        if (deleteCustomEventIndex !== null) {
+          const name = customEvents[deleteCustomEventIndex].name;
+          customEvents.splice(deleteCustomEventIndex, 1);
+          localStorage.setItem("customEvents", JSON.stringify(customEvents));
+          loadAllEventTables();
+          showBanchoToast("🗑️", `「${name}」を削除したぜ！<br>これでスッキリしただろ？`);
+          showAllEventsList();
+          closeDeleteCustomEventModal();
+        }
+      };
+
+      function removeCustomEventFromProposed(eventName) {
+        const initialCount = customEvents.length;
+        customEvents = customEvents.filter((ev) => ev.name !== eventName);
+        if (customEvents.length < initialCount) {
+          localStorage.setItem("customEvents", JSON.stringify(customEvents));
+          loadAllEventTables();
+        }
+      }
+
+      function participateEvent(idx) {
+        const ev = registeredEvents[idx];
+        if (
+          !ev ||
+          ev.status === "done" ||
+          ev.status === "canceled" ||
+          ev.status === "autocanceled"
+        )
+          return;
+        ev.status = "done";
+        localStorage.setItem(
+          "registeredEvents",
+          JSON.stringify(registeredEvents)
+        );
+        addXp(eventXpTable[ev.event] || 10, ev.event);
+        showRegisteredEvents();
+      }
+
+      function showRegisteredEvents() {
+        autoCancelExpiredEvents();
+        const list = document.getElementById("registeredList");
+        if (registeredEvents.length === 0) {
+          list.innerHTML = "<h2>登録済みイベント</h2><p>まだありません。</p>";
+          return;
+        }
+        let html = "<h2>登録済みイベント</h2><ul>";
+        const now = new Date();
+        registeredEvents.forEach((ev, idx) => {
+          let statusStr = "";
+          if (ev.status === "done")
+            statusStr = ' <span style="color:#00ffe7;">[参加済]</span>';
+          if (ev.status === "canceled")
+            statusStr = ' <span style="color:#d32f2f;">[キャンセル]</span>';
+          if (ev.status === "autocanceled")
+            statusStr =
+              ' <span class="autocanceled-label">[強制キャンセル]</span>';
+          html += `<li>${ev.date} ${ev.start}〜${ev.end} <strong>${ev.event}</strong>
+          +${eventXpTable[ev.event] || 10}XP
+          <span class="cancel-fee-label">キャンセル料金:${
+            eventCancelFeeTable[ev.event] || 0
+          }円</span>
+          ${statusStr}`;
+          const eventDateTime = new Date(ev.date + "T" + ev.start);
+          // 参加ボタン: statusがreservedかつ今がイベント開始時刻以降かつ強制キャンセルでない
+          if (ev.status === "reserved" && eventDateTime <= now) {
+            html += `<button class="participate-btn" onclick="participateEvent(${idx})">参加</button>`;
+          }
+          // キャンセルボタン: statusがreservedなら常に表示
+          if (ev.status === "reserved") {
+            html += `<button class="cancel-btn" onclick="openDangerModal(${idx})">キャンセル</button>`;
+          }
+          html += `</li>`;
+        });
+        html += "</ul>";
+        list.innerHTML = html;
+      }
+
+      function openDangerModal(idx) {
+        playSound('sound-alert');
+        cancelIdx = idx;
+        // モーダルにキャンセル料金も表示
+        const ev = registeredEvents[idx];
+        document.getElementById(
+          "dangerCancelFee"
+        ).innerHTML = `<span>このイベントのキャンセル料金：<b>${
+          eventCancelFeeTable[ev.event] || 0
+        }円</b></span>`;
+        document.getElementById("dangerModal").classList.add("active");
+        setTimeout(() => {
+          document.getElementById("dangerConfirmBtn").focus();
+        }, 100);
+      }
+      function closeDangerModal() {
+        document.getElementById("dangerModal").classList.remove("active");
+        cancelIdx = null;
+      }
+      document.getElementById("dangerCancelBtn").onclick = closeDangerModal;
+      document.getElementById("dangerConfirmBtn").onclick = function () {
+        if (cancelIdx !== null) {
+          // ここでイベント情報を一時変数に保存
+          const ev = registeredEvents[cancelIdx];
+          registeredEvents[cancelIdx].status = "canceled";
+          localStorage.setItem(
+            "registeredEvents",
+            JSON.stringify(registeredEvents)
+          );
+          showRegisteredEvents();
+          renderCalendar(calYear, calMonth);
+          closeDangerModal();
+          playSound('sound-cancel');
+          showBanchoToast(
+            "🥲",
+            `キャンセルを確定しました<br><span style='font-size:0.95em;'>キャンセル料金：${
+              eventCancelFeeTable[ev.event] || 0
+            }円<br>番長はがっかりしてるが、またのご利用を待ってるぜ…</span>`
+          );
+        }
+      };
+
+      function resetEvents() {
+        if (confirm("本当にイベント履歴をリセットしますか？")) {
+          registeredEvents = [];
+          localStorage.setItem(
+            "registeredEvents",
+            JSON.stringify(registeredEvents)
+          );
+          showRegisteredEvents();
+          renderCalendar(calYear, calMonth);
+          showBanchoToast(
+            "🗑️",
+            "イベント履歴をリセットしたぜ！<br><span style='font-size:0.95em;'>また新たな伝説を作ろうじゃねぇか！</span>"
+          );
+        }
+      }
+      function resetLevel() {
+        if (confirm("本当に番長レベルをリセットしますか？")) {
+          user = { xp: 0, level: 1, participated: [] };
+          localStorage.setItem("banchoUser", JSON.stringify(user));
+          updateLevelUI();
+          showBanchoToast(
+            "🔄",
+            "番長レベルをリセットしたぜ！<br><span style='font-size:0.95em;'>またイチから成り上がれ！</span>"
+          );
+        }
+      }
+
+      // 初期化時に強制キャンセルチェック
+      autoCancelExpiredEvents();
+      updateLevelUI();
+      renderCalendar(calYear, calMonth);
+      showRegisteredEvents();
+      showAllEventsList();
+
+      // 定期的に強制キャンセル判定（1分ごと）
+      setInterval(() => {
+        autoCancelExpiredEvents();
+        showRegisteredEvents();
+      }, 60000);
+
+      window.participateEvent = participateEvent;
+      window.openDangerModal = openDangerModal;
+      window.resetEvents = resetEvents;
+      window.resetLevel = resetLevel;
+      window.aiRouletteEvent = aiRouletteEvent;
+      window.showAllEventsList = showAllEventsList;
+      window.addCustomEvent = addCustomEvent;
+      window.editCustomEvent = editCustomEvent;
+      window.openDeleteCustomEventModal = openDeleteCustomEventModal;
+    </script>
+  </body>
+</html>
