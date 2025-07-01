@@ -142,6 +142,7 @@
           #6a82fb 100%
         );
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 16px #ffd600, 0 0 32px #00ffe7;
         font-weight: bold;
@@ -935,12 +936,32 @@
   </head>
   <body>
     <!-- 効果音 -->
-    <audio id="sound-select" src="workspace/決定ボタンを押す31.mp3" preload="auto"></audio>
-    <audio id="sound-cancel" src="workspace/キャンセル4.mp3" preload="auto"></audio>
-    <audio id="sound-levelup" src="workspace/データ表示3.mp3" preload="auto"></audio>
+    <audio
+      id="sound-select"
+      src="workspace/決定ボタンを押す31.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-cancel"
+      src="workspace/キャンセル4.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-levelup"
+      src="workspace/データ表示3.mp3"
+      preload="auto"
+    ></audio>
     <audio id="sound-alert" src="workspace/警告音2.mp3" preload="auto"></audio>
-    <audio id="sound-charge" src="workspace/ゲージ回復1.mp3" preload="auto"></audio>
-    <audio id="sound-error" src="workspace/ビープ音4.mp3" preload="auto"></audio>
+    <audio
+      id="sound-charge"
+      src="workspace/ゲージ回復1.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-error"
+      src="workspace/ビープ音4.mp3"
+      preload="auto"
+    ></audio>
     <!-- リセットボタン -->
     <div class="reset-btns-fixed">
       <button class="event-reset-btn" onclick="resetEvents()">
@@ -1001,7 +1022,8 @@
                 li.dataset.value = h;
                 startHourList.appendChild(li);
               }
-              const startMinuteList = document.getElementById("start-minute-list");
+              const startMinuteList =
+                document.getElementById("start-minute-list");
               for (let m = 0; m < 60; m++) {
                 const li = document.createElement("li");
                 li.textContent = m.toString().padStart(2, "0");
@@ -1033,9 +1055,13 @@
                 }
               });
               function updateStartButton() {
-                if (startSelectedHour !== null && startSelectedMinute !== null) {
+                if (
+                  startSelectedHour !== null &&
+                  startSelectedMinute !== null
+                ) {
                   const timeStr = `${startSelectedHour}:${startSelectedMinute}`;
-                  document.getElementById("start-time-btn").textContent = timeStr;
+                  document.getElementById("start-time-btn").textContent =
+                    timeStr;
                   document.getElementById("start-time").value = timeStr;
                   document.getElementById("start-time-dropdown").style.display =
                     "none";
@@ -1044,7 +1070,9 @@
               document
                 .getElementById("start-time-btn")
                 .addEventListener("click", function (e) {
-                  const dropdown = document.getElementById("start-time-dropdown");
+                  const dropdown = document.getElementById(
+                    "start-time-dropdown"
+                  );
                   dropdown.style.display =
                     dropdown.style.display === "flex" ? "none" : "flex";
                   e.stopPropagation();
@@ -1139,7 +1167,11 @@
         </div>
       </div>
       <div class="event-add-area">
-        <input type="text" id="newEventName" placeholder="新しいイベント名を入力" />
+        <input
+          type="text"
+          id="newEventName"
+          placeholder="新しいイベント名を入力"
+        />
         <button onclick="addCustomEvent()">イベント追加</button>
       </div>
       <div class="event-list" id="eventList">
@@ -1188,13 +1220,19 @@
         <div class="danger-icon">🗑️</div>
         <h3>本当にこのイベントを削除するのか？</h3>
         <p>
-          <span style="color:#ffd600; font-size:1.13em;">一度消したら戻らねぇぞ！</span><br />
-          <span style="color:#fff;" id="deleteEventNameConfirm"></span><br />
-          <span style="color:#ffd600;">よく考えろ、コラ！</span>
+          <span style="color: #ffd600; font-size: 1.13em"
+            >一度消したら戻らねぇぞ！</span
+          ><br />
+          <span style="color: #fff" id="deleteEventNameConfirm"></span><br />
+          <span style="color: #ffd600">よく考えろ、コラ！</span>
         </p>
         <div class="danger-actions">
-          <button class="danger-confirm" id="deleteConfirmBtn">それでも削除する</button>
-          <button class="danger-cancel" id="deleteCancelBtn">やっぱやめとく</button>
+          <button class="danger-confirm" id="deleteConfirmBtn">
+            それでも削除する
+          </button>
+          <button class="danger-cancel" id="deleteCancelBtn">
+            やっぱやめとく
+          </button>
         </div>
       </div>
     </div>
@@ -1206,7 +1244,6 @@
     </div>
     <!-- Flatpickr JS -->
     <script>
-
       // 効果音再生関数
       function playSound(id) {
         const audio = document.getElementById(id);
@@ -1264,7 +1301,9 @@
 
       let eventXpTable = {};
       let eventCancelFeeTable = {};
-      let customEvents = JSON.parse(localStorage.getItem("customEvents") || "[]");
+      let customEvents = JSON.parse(
+        localStorage.getItem("customEvents") || "[]"
+      );
       const XP_PER_LEVEL = 100;
       let user = JSON.parse(
         localStorage.getItem("banchoUser") ||
@@ -1349,13 +1388,13 @@
         localStorage.setItem("banchoUser", JSON.stringify(user));
         updateLevelUI();
         if (user.level > beforeLevel) {
-          playSound('sound-levelup');
+          playSound("sound-levelup");
           showBanchoToast(
             "💥",
             `レベルアップ！<br>「${eventName}」で${xp}XP獲得<br>番長レベルがLv.${user.level}になった！`
           );
         } else {
-          playSound('sound-charge');
+          playSound("sound-charge");
           showBanchoToast("🔥", `「${eventName}」に参加！<br>+${xp}XPゲット！`);
         }
       }
@@ -1466,7 +1505,7 @@
         const endTime = document.getElementById("end-time").value;
         if (!selectedDate || !startTime || !endTime) {
           alert("カレンダーの日付と開始・終了時刻を選択してください。");
-          playSound('sound-error');
+          playSound("sound-error");
           return;
         }
         const today = new Date();
@@ -1475,7 +1514,7 @@
         selDate.setHours(0, 0, 0, 0);
         if (selDate < today) {
           alert("過去の日付は選択できません。");
-          playSound('sound-error');
+          playSound("sound-error");
           return;
         }
         // 利用可能なイベントから候補を用意
@@ -1540,10 +1579,15 @@
             // 1.5秒後にモーダルを自動で閉じてイベント登録＆Googleカレンダー追加
             setTimeout(() => {
               modalBg.classList.remove("active");
-              registerEventAndAddToCalendar(finalEvent, selectedDate, startTime, endTime);
+              registerEventAndAddToCalendar(
+                finalEvent,
+                selectedDate,
+                startTime,
+                endTime
+              );
               removeCustomEventFromProposed(finalEvent);
               showAllEventsList();
-              playSound('sound-select');
+              playSound("sound-select");
               showBanchoToast(
                 "🤖",
                 `AI番長が選んだイベントは…<br><b>${finalEvent}</b> だ！<br>楽しんでこいよ！`
@@ -1595,19 +1639,29 @@
           }
 
           btn.onclick = (e) => {
-            if (e.target.tagName === 'BUTTON' && e.target.closest('.event-actions')) {
+            if (
+              e.target.tagName === "BUTTON" &&
+              e.target.closest(".event-actions")
+            ) {
               return;
             }
             if (!selectedDate || !startTime || !endTime) {
-              alert('カレンダーの日付と開始・終了時刻を選択してからイベントを選んでください。');
+              alert(
+                "カレンダーの日付と開始・終了時刻を選択してからイベントを選んでください。"
+              );
               return;
             }
-            registerEventAndAddToCalendar(eventName, selectedDate, startTime, endTime);
+            registerEventAndAddToCalendar(
+              eventName,
+              selectedDate,
+              startTime,
+              endTime
+            );
             removeCustomEventFromProposed(eventName);
             showAllEventsList();
           };
-        container.appendChild(btn);
-      });
+          container.appendChild(btn);
+        });
       }
 
       function registerEventAndAddToCalendar(eventName, date, start, end) {
@@ -1618,7 +1672,10 @@
           event: eventName,
           status: "reserved",
         });
-        localStorage.setItem("registeredEvents", JSON.stringify(registeredEvents));
+        localStorage.setItem(
+          "registeredEvents",
+          JSON.stringify(registeredEvents)
+        );
         showRegisteredEvents();
         renderCalendar(calYear, calMonth);
         const url = createGoogleCalUrl(eventName, date, start, end);
@@ -1633,31 +1690,51 @@
           return;
         }
         if (Object.keys(eventXpTable).includes(eventName)) {
-          showBanchoToast("😅", `「${eventName}」は既に存在しているぜ！<br>別の名前にしてくれ！`);
+          showBanchoToast(
+            "😅",
+            `「${eventName}」は既に存在しているぜ！<br>別の名前にしてくれ！`
+          );
           return;
         }
         const xp = Math.floor(Math.random() * 20) + 5;
         const cancelFee = Math.floor(Math.random() * 400) + 100;
-        const newCustomEvent = { name: eventName, xp: xp, cancelFee: cancelFee };
+        const newCustomEvent = {
+          name: eventName,
+          xp: xp,
+          cancelFee: cancelFee,
+        };
         customEvents.push(newCustomEvent);
         localStorage.setItem("customEvents", JSON.stringify(customEvents));
         loadAllEventTables();
         input.value = "";
-        showBanchoToast("🎉", `「${eventName}」を追加したぜ！<br>XP: ${xp}, キャンセル料金: ${cancelFee}円`);
+        showBanchoToast(
+          "🎉",
+          `「${eventName}」を追加したぜ！<br>XP: ${xp}, キャンセル料金: ${cancelFee}円`
+        );
         showAllEventsList();
       }
 
       function editCustomEvent(index) {
         const eventToEdit = customEvents[index];
-        const newName = prompt(`「${eventToEdit.name}」を新しいイベント名に編集するぜ！入力しろ！`, eventToEdit.name);
+        const newName = prompt(
+          `「${eventToEdit.name}」を新しいイベント名に編集するぜ！入力しろ！`,
+          eventToEdit.name
+        );
         if (newName === null || newName.trim() === "") return;
         const trimmed = newName.trim();
         if (trimmed === eventToEdit.name) {
           showBanchoToast("🤔", "変更されてねぇじゃねぇか！<br>同じ名前だぜ！");
           return;
         }
-        if (Object.keys(eventXpTable).some((n) => n === trimmed && n !== eventToEdit.name)) {
-          showBanchoToast("😅", `「${trimmed}」は既に存在しているぜ！<br>別の名前にしてくれ！`);
+        if (
+          Object.keys(eventXpTable).some(
+            (n) => n === trimmed && n !== eventToEdit.name
+          )
+        ) {
+          showBanchoToast(
+            "😅",
+            `「${trimmed}」は既に存在しているぜ！<br>別の名前にしてくれ！`
+          );
           return;
         }
         eventToEdit.name = trimmed;
@@ -1670,24 +1747,36 @@
       function openDeleteCustomEventModal(index) {
         deleteCustomEventIndex = index;
         const name = customEvents[index].name;
-        document.getElementById("deleteEventNameConfirm").textContent = `「${name}」を削除するぞ。`;
-        document.getElementById("deleteCustomEventModal").classList.add("active");
-        setTimeout(() => { document.getElementById("deleteConfirmBtn").focus(); }, 100);
+        document.getElementById(
+          "deleteEventNameConfirm"
+        ).textContent = `「${name}」を削除するぞ。`;
+        document
+          .getElementById("deleteCustomEventModal")
+          .classList.add("active");
+        setTimeout(() => {
+          document.getElementById("deleteConfirmBtn").focus();
+        }, 100);
       }
 
       function closeDeleteCustomEventModal() {
-        document.getElementById("deleteCustomEventModal").classList.remove("active");
+        document
+          .getElementById("deleteCustomEventModal")
+          .classList.remove("active");
         deleteCustomEventIndex = null;
       }
 
-      document.getElementById("deleteCancelBtn").onclick = closeDeleteCustomEventModal;
+      document.getElementById("deleteCancelBtn").onclick =
+        closeDeleteCustomEventModal;
       document.getElementById("deleteConfirmBtn").onclick = function () {
         if (deleteCustomEventIndex !== null) {
           const name = customEvents[deleteCustomEventIndex].name;
           customEvents.splice(deleteCustomEventIndex, 1);
           localStorage.setItem("customEvents", JSON.stringify(customEvents));
           loadAllEventTables();
-          showBanchoToast("🗑️", `「${name}」を削除したぜ！<br>これでスッキリしただろ？`);
+          showBanchoToast(
+            "🗑️",
+            `「${name}」を削除したぜ！<br>これでスッキリしただろ？`
+          );
           showAllEventsList();
           closeDeleteCustomEventModal();
         }
@@ -1738,7 +1827,9 @@
           if (ev.status === "autocanceled")
             statusStr =
               ' <span class="autocanceled-label">[強制キャンセル]</span>';
-          html += `<li>${ev.date} ${ev.start}〜${ev.end} <strong>${ev.event}</strong>
+          html += `<li>${ev.date} ${ev.start}〜${ev.end} <strong>${
+            ev.event
+          }</strong>
           +${eventXpTable[ev.event] || 10}XP
           <span class="cancel-fee-label">キャンセル料金:${
             eventCancelFeeTable[ev.event] || 0
@@ -1760,7 +1851,7 @@
       }
 
       function openDangerModal(idx) {
-        playSound('sound-alert');
+        playSound("sound-alert");
         cancelIdx = idx;
         // モーダルにキャンセル料金も表示
         const ev = registeredEvents[idx];
@@ -1791,7 +1882,7 @@
           showRegisteredEvents();
           renderCalendar(calYear, calMonth);
           closeDangerModal();
-          playSound('sound-cancel');
+          playSound("sound-cancel");
           showBanchoToast(
             "🥲",
             `キャンセルを確定しました<br><span style='font-size:0.95em;'>キャンセル料金：${
