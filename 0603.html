@@ -1208,6 +1208,7 @@
             );
             showRegisteredEvents();
             renderCalendar(calYear, calMonth);
+            playSound("sound-select");
             const url = createGoogleCalUrl(event, selectedDate, time);
             window.open(url, "_blank");
           };
