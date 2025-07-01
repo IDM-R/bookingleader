@@ -278,7 +278,7 @@
       }
       .time-picker {
         position: relative;
-
+         origin/yuri_soundplay
         width: 160px; /* ボタンと並べても余裕が出る幅 */
         font-family: sans-serif;
       }
@@ -854,6 +854,7 @@
       preload="auto"
     ></audio>
     <audio id="sound-alert" src="workspace/警告音2.mp3" preload="auto"></audio>
+    <<<<<<< HEAD
     <audio
       id="sound-charge"
       src="workspace/ゲージ回復1.mp3"
@@ -864,6 +865,28 @@
       src="workspace/ビープ音4.mp3"
       preload="auto"
     ></audio>
+    =======
+    <audio
+      id="sound-charge"
+      src="workspace/ゲージ回復1.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-error"
+      src="workspace/ビープ音4.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-drumroll"
+      src="workspace/ドラムロール.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-rollfinish"
+      src="workspace/ロールの閉め.mp3"
+      preload="auto"
+    ></audio>
+    >>>>>>> origin/yuri_soundplay
     <!-- リセットボタン -->
     <div class="reset-btns-fixed">
       <button class="event-reset-btn" onclick="resetEvents()">
@@ -1114,541 +1137,549 @@
     </div>
     <!-- Flatpickr JS -->
     <script>
-      // 効果音再生関数
-      function playSound(id) {
-        const audio = document.getElementById(id);
-        if (audio) {
-          audio.currentTime = 0;
-          audio.play();
-        }
-      }
-
-      // イベント経験値＆キャンセル料金テーブル
-      const eventXpTable = {
-        ランチ: 10,
-        読書: 15,
-        散歩: 12,
-        映画鑑賞: 18,
-        料理: 20,
-        カフェで休憩: 8,
-        買い物: 10,
-        運動: 20,
-        ヨガ: 16,
-        友人とお茶: 10,
-        カラオケ: 14,
-        ボードゲーム: 13,
-        公園でピクニック: 16,
-        美術館に行く: 22,
-        図書館で勉強: 18,
-        音楽鑑賞: 10,
-        "手芸・DIY": 15,
-        家の掃除: 12,
-        お菓子作り: 15,
-        写真撮影: 14,
-      };
-      const eventCancelFeeTable = {
-        ランチ: 200,
-        読書: 100,
-        散歩: 100,
-        映画鑑賞: 300,
-        料理: 400,
-        カフェで休憩: 100,
-        買い物: 150,
-        運動: 300,
-        ヨガ: 250,
-        友人とお茶: 150,
-        カラオケ: 350,
-        ボードゲーム: 200,
-        公園でピクニック: 250,
-        美術館に行く: 500,
-        図書館で勉強: 200,
-        音楽鑑賞: 120,
-        "手芸・DIY": 180,
-        家の掃除: 100,
-        お菓子作り: 200,
-        写真撮影: 180,
-      };
-      const XP_PER_LEVEL = 100;
-      let user = JSON.parse(
-        localStorage.getItem("banchoUser") ||
-          '{"xp":0,"level":1,"participated":[] }'
-      );
-      let registeredEvents = JSON.parse(
-        localStorage.getItem("registeredEvents") || "[]"
-      );
-      let selectedDate = null;
-      let calYear = new Date().getFullYear();
-      let calMonth = new Date().getMonth();
-      let cancelIdx = null;
-
-      // 強制キャンセルチェック
-      function autoCancelExpiredEvents() {
-        const now = new Date();
-        let changed = false;
-        registeredEvents.forEach((ev) => {
-          if (ev.status === "reserved") {
-            const evDate = new Date(ev.date + "T" + ev.start);
-            evDate.setMinutes(evDate.getMinutes() + 10);
-            if (now > evDate) {
-              ev.status = "autocanceled";
-              changed = true;
-            }
-          }
-        });
-        if (changed) {
-          localStorage.setItem(
-            "registeredEvents",
-            JSON.stringify(registeredEvents)
-          );
-          showBanchoToast(
-            "⚡",
-            "開始時刻10分超過のため<br><b>番長判断で強制キャンセル！</b>"
-          );
-        }
-      }
-
-      function updateLevelUI() {
-        document.getElementById("levelNum").textContent = `Lv.${user.level}`;
-        const xpThisLevel = user.xp % XP_PER_LEVEL;
-        const percent = Math.min(100, (xpThisLevel / XP_PER_LEVEL) * 100);
-        document.getElementById("xpBarFill").style.width = percent + "%";
-        document.getElementById(
-          "xpBarLabel"
-        ).textContent = `${xpThisLevel} / ${XP_PER_LEVEL} XP`;
-      }
-
-      function showBanchoToast(icon, msg, duration = 4000) {
-        const toast = document.getElementById("banchoToast");
-        document.getElementById("banchoToastIcon").textContent = icon;
-        document.getElementById("banchoToastMsg").innerHTML = msg;
-        toast.classList.add("show");
-        toast.style.opacity = 1;
-        if (toast._timer) clearTimeout(toast._timer);
-        toast._timer = setTimeout(hideBanchoToast, duration);
-      }
-      function hideBanchoToast() {
-        const toast = document.getElementById("banchoToast");
-        toast.style.opacity = 0;
-        setTimeout(() => {
-          toast.classList.remove("show");
-        }, 400);
-      }
-
-      function addXp(xp, eventName) {
-        let beforeLevel = user.level;
-        user.xp += xp;
-        user.level = Math.floor(user.xp / XP_PER_LEVEL) + 1;
-        localStorage.setItem("banchoUser", JSON.stringify(user));
-        updateLevelUI();
-        if (user.level > beforeLevel) {
-          playSound("sound-levelup");
-          showBanchoToast(
-            "💥",
-            `レベルアップ！<br>「${eventName}」で${xp}XP獲得<br>番長レベルがLv.${user.level}になった！`
-          );
-        } else {
-          playSound("sound-charge");
-          showBanchoToast("🔥", `「${eventName}」に参加！<br>+${xp}XPゲット！`);
-        }
-      }
-
-      function renderCalendar(year, month) {
-        const calendarDiv = document.getElementById("calendar");
-        const calendarTitle = document.getElementById("calendarTitle");
-        calendarDiv.innerHTML = "";
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const weeks = [];
-        let week = [];
-        for (let i = 0; i < firstDay.getDay(); i++) week.push("");
-        for (let d = 1; d <= lastDay.getDate(); d++) {
-          week.push(d);
-          if (week.length === 7) {
-            weeks.push(week);
-            week = [];
-          }
-        }
-        if (week.length > 0) {
-          while (week.length < 7) week.push("");
-          weeks.push(week);
-        }
-        let html =
-          '<table class="calendar-table"><tr><th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr>';
-        for (const w of weeks) {
-          html += "<tr>";
-          for (const d of w) {
-            let cls = "";
-            let dateStr = "";
-            let isPast = false;
-            if (d) {
-              dateStr = `${year}-${("0" + (month + 1)).slice(-2)}-${(
-                "0" + d
-              ).slice(-2)}`;
-              const cellDate = new Date(year, month, d);
-              cellDate.setHours(0, 0, 0, 0);
-              if (cellDate < today) {
-                cls += " disabled-date";
-                isPast = true;
+            // 効果音再生関数
+            function playSound(id) {
+              const audio = document.getElementById(id);
+              if (audio) {
+                audio.currentTime = 0;
+                audio.play();
               }
-              if (selectedDate === dateStr) cls += " selected";
-              if (
-                today.getFullYear() === year &&
-                today.getMonth() === month &&
-                today.getDate() === d
-              )
-                cls += " today";
-              if (registeredEvents.some((ev) => ev.date === dateStr))
-                cls += " has-event";
-              html += `<td class="${cls}" tabindex="${isPast ? "-1" : "0"}" ${
-                isPast
-                  ? ""
-                  : `onclick="selectDate('${dateStr}')" onkeydown="if(event.key==='Enter'){selectDate('${dateStr}');}"`
-              }>${d}</td>`;
-            } else {
-              html += "<td></td>";
             }
-          }
-          html += "</tr>";
-        }
-        html += "</table>";
-        calendarDiv.innerHTML = html;
-        calendarTitle.textContent = `${year}年${month + 1}月`;
-      }
-      function prevMonth() {
-        calMonth--;
-        if (calMonth < 0) {
-          calMonth = 11;
-          calYear--;
-        }
-        renderCalendar(calYear, calMonth);
-      }
-      function nextMonth() {
-        calMonth++;
-        if (calMonth > 11) {
-          calMonth = 0;
-          calYear++;
-        }
-        renderCalendar(calYear, calMonth);
-      }
-      function selectDate(dateStr) {
-        selectedDate = dateStr;
-        renderCalendar(calYear, calMonth);
-      }
 
-      function getRandomEvents(arr, n) {
-        const shuffled = arr.slice().sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, n);
-      }
+            // イベント経験値＆キャンセル料金テーブル
+            const eventXpTable = {
+              ランチ: 10,
+              読書: 15,
+              散歩: 12,
+              映画鑑賞: 18,
+              料理: 20,
+              カフェで休憩: 8,
+              買い物: 10,
+              運動: 20,
+              ヨガ: 16,
+              友人とお茶: 10,
+              カラオケ: 14,
+              ボードゲーム: 13,
+              公園でピクニック: 16,
+              美術館に行く: 22,
+              図書館で勉強: 18,
+              音楽鑑賞: 10,
+              "手芸・DIY": 15,
+              家の掃除: 12,
+              お菓子作り: 15,
+              写真撮影: 14,
+            };
+            const eventCancelFeeTable = {
+              ランチ: 200,
+              読書: 100,
+              散歩: 100,
+              映画鑑賞: 300,
+              料理: 400,
+              カフェで休憩: 100,
+              買い物: 150,
+              運動: 300,
+              ヨガ: 250,
+              友人とお茶: 150,
+              カラオケ: 350,
+              ボードゲーム: 200,
+              公園でピクニック: 250,
+              美術館に行く: 500,
+              図書館で勉強: 200,
+              音楽鑑賞: 120,
+              "手芸・DIY": 180,
+              家の掃除: 100,
+              お菓子作り: 200,
+              写真撮影: 180,
+            };
+            const XP_PER_LEVEL = 100;
+            let user = JSON.parse(
+              localStorage.getItem("banchoUser") ||
+                '{"xp":0,"level":1,"participated":[] }'
+            );
+            let registeredEvents = JSON.parse(
+              localStorage.getItem("registeredEvents") || "[]"
+            );
+            let selectedDate = null;
+            let calYear = new Date().getFullYear();
+            let calMonth = new Date().getMonth();
+            let cancelIdx = null;
 
-      function createGoogleCalUrl(title, date, startTime, endTime) {
-        const start =
-          date.replace(/-/g, "") + "T" + startTime.replace(":", "") + "00";
-        const end =
-          date.replace(/-/g, "") + "T" + endTime.replace(":", "") + "00";
-        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-          title
-        )}&dates=${start}/${end}`;
-      }
-
-      // ルーレット演出付きAI決定
-      function aiRouletteEvent() {
-        const startTime = document.getElementById("start-time").value;
-        const endTime = document.getElementById("end-time").value;
-        if (!selectedDate || !startTime || !endTime) {
-          alert("カレンダーの日付と開始・終了時刻を選択してください。");
-          playSound("sound-error");
-          return;
-        }
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selDate = new Date(selectedDate);
-        selDate.setHours(0, 0, 0, 0);
-        if (selDate < today) {
-          alert("過去の日付は選択できません。");
-          playSound("sound-error");
-          return;
-        }
-        // ルーレット候補を用意
-        const eventNames = Object.keys(eventXpTable);
-        const rouletteCandidates = getRandomEvents(eventNames, 7);
-        const finalIdx = Math.floor(Math.random() * rouletteCandidates.length);
-
-        // モーダル表示
-        const modalBg = document.getElementById("rouletteModalBg");
-        const rList = document.getElementById("rouletteList");
-        const rFinal = document.getElementById("rouletteFinal");
-        rFinal.textContent = "";
-        rList.innerHTML = "";
-        modalBg.classList.add("active");
-
-        // ルーレットリスト描画
-        rouletteCandidates.forEach((event, idx) => {
-          const div = document.createElement("div");
-          div.className = "roulette-item" + (idx === 0 ? " active" : "");
-          div.innerHTML = `${event}
-          <span class="event-xp">+${eventXpTable[event]}XP</span>
-          <span class="event-cancel-fee">キャンセル料金：${eventCancelFeeTable[event]}円</span>`;
-          rList.appendChild(div);
-        });
-
-        // ルーレットアニメーション
-        let current = 0;
-        let rounds = 0;
-        let totalRounds = 18 + finalIdx; // 最低3周＋ランダム
-        let speed = 80;
-        function spin() {
-          // remove all active
-          for (let i = 0; i < rList.children.length; i++) {
-            rList.children[i].classList.remove("active");
-          }
-          let idx = current % rouletteCandidates.length;
-          rList.children[idx].classList.add("active");
-          if (rounds < totalRounds) {
-            current++;
-            rounds++;
-            if (rounds > totalRounds - 7) speed += 25; // 減速
-            setTimeout(spin, speed);
-          } else {
-            // 決定
-            let decidedIdx = totalRounds % rouletteCandidates.length;
-            let finalEvent = rouletteCandidates[decidedIdx];
-            rFinal.innerHTML = `AI番長が選んだイベントは…<br><b>${finalEvent}</b> だ！<br>楽しんでこいよ！`;
-
-            // 1.5秒後にモーダルを自動で閉じてイベント登録＆Googleカレンダー追加
-            setTimeout(() => {
-              modalBg.classList.remove("active");
-              registeredEvents.push({
-                date: selectedDate,
-                start: startTime,
-                end: endTime,
-                event: finalEvent,
-                status: "reserved",
+            // 強制キャンセルチェック
+            function autoCancelExpiredEvents() {
+              const now = new Date();
+              let changed = false;
+              registeredEvents.forEach((ev) => {
+                if (ev.status === "reserved") {
+                  const evDate = new Date(ev.date + "T" + ev.start);
+                  evDate.setMinutes(evDate.getMinutes() + 10);
+                  if (now > evDate) {
+                    ev.status = "autocanceled";
+                    changed = true;
+                  }
+                }
               });
+              if (changed) {
+                localStorage.setItem(
+                  "registeredEvents",
+                  JSON.stringify(registeredEvents)
+                );
+                showBanchoToast(
+                  "⚡",
+                  "開始時刻10分超過のため<br><b>番長判断で強制キャンセル！</b>"
+                );
+              }
+            }
+
+            function updateLevelUI() {
+              document.getElementById("levelNum").textContent = `Lv.${user.level}`;
+              const xpThisLevel = user.xp % XP_PER_LEVEL;
+              const percent = Math.min(100, (xpThisLevel / XP_PER_LEVEL) * 100);
+              document.getElementById("xpBarFill").style.width = percent + "%";
+              document.getElementById(
+                "xpBarLabel"
+              ).textContent = `${xpThisLevel} / ${XP_PER_LEVEL} XP`;
+            }
+
+            function showBanchoToast(icon, msg, duration = 4000) {
+              const toast = document.getElementById("banchoToast");
+              document.getElementById("banchoToastIcon").textContent = icon;
+              document.getElementById("banchoToastMsg").innerHTML = msg;
+              toast.classList.add("show");
+              toast.style.opacity = 1;
+              if (toast._timer) clearTimeout(toast._timer);
+              toast._timer = setTimeout(hideBanchoToast, duration);
+            }
+            function hideBanchoToast() {
+              const toast = document.getElementById("banchoToast");
+              toast.style.opacity = 0;
+              setTimeout(() => {
+                toast.classList.remove("show");
+              }, 400);
+            }
+
+            function addXp(xp, eventName) {
+              let beforeLevel = user.level;
+              user.xp += xp;
+              user.level = Math.floor(user.xp / XP_PER_LEVEL) + 1;
+              localStorage.setItem("banchoUser", JSON.stringify(user));
+              updateLevelUI();
+              if (user.level > beforeLevel) {
+                playSound("sound-levelup");
+                showBanchoToast(
+                  "💥",
+                  `レベルアップ！<br>「${eventName}」で${xp}XP獲得<br>番長レベルがLv.${user.level}になった！`
+                );
+              } else {
+                playSound("sound-charge");
+                showBanchoToast("🔥", `「${eventName}」に参加！<br>+${xp}XPゲット！`);
+              }
+            }
+
+            function renderCalendar(year, month) {
+              const calendarDiv = document.getElementById("calendar");
+              const calendarTitle = document.getElementById("calendarTitle");
+              calendarDiv.innerHTML = "";
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const firstDay = new Date(year, month, 1);
+              const lastDay = new Date(year, month + 1, 0);
+              const weeks = [];
+              let week = [];
+              for (let i = 0; i < firstDay.getDay(); i++) week.push("");
+              for (let d = 1; d <= lastDay.getDate(); d++) {
+                week.push(d);
+                if (week.length === 7) {
+                  weeks.push(week);
+                  week = [];
+                }
+              }
+              if (week.length > 0) {
+                while (week.length < 7) week.push("");
+                weeks.push(week);
+              }
+              let html =
+                '<table class="calendar-table"><tr><th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr>';
+              for (const w of weeks) {
+                html += "<tr>";
+                for (const d of w) {
+                  let cls = "";
+                  let dateStr = "";
+                  let isPast = false;
+                  if (d) {
+                    dateStr = `${year}-${("0" + (month + 1)).slice(-2)}-${(
+                      "0" + d
+                    ).slice(-2)}`;
+                    const cellDate = new Date(year, month, d);
+                    cellDate.setHours(0, 0, 0, 0);
+                    if (cellDate < today) {
+                      cls += " disabled-date";
+                      isPast = true;
+                    }
+                    if (selectedDate === dateStr) cls += " selected";
+                    if (
+                      today.getFullYear() === year &&
+                      today.getMonth() === month &&
+                      today.getDate() === d
+                    )
+                      cls += " today";
+                    if (registeredEvents.some((ev) => ev.date === dateStr))
+                      cls += " has-event";
+                    html += `<td class="${cls}" tabindex="${isPast ? "-1" : "0"}" ${
+                      isPast
+                        ? ""
+                        : `onclick="selectDate('${dateStr}')" onkeydown="if(event.key==='Enter'){selectDate('${dateStr}');}"`
+                    }>${d}</td>`;
+                  } else {
+                    html += "<td></td>";
+                  }
+                }
+                html += "</tr>";
+              }
+              html += "</table>";
+              calendarDiv.innerHTML = html;
+              calendarTitle.textContent = `${year}年${month + 1}月`;
+            }
+            function prevMonth() {
+              calMonth--;
+              if (calMonth < 0) {
+                calMonth = 11;
+                calYear--;
+              }
+              renderCalendar(calYear, calMonth);
+            }
+            function nextMonth() {
+              calMonth++;
+              if (calMonth > 11) {
+                calMonth = 0;
+                calYear++;
+              }
+              renderCalendar(calYear, calMonth);
+            }
+            function selectDate(dateStr) {
+              selectedDate = dateStr;
+              renderCalendar(calYear, calMonth);
+            }
+
+            function getRandomEvents(arr, n) {
+              const shuffled = arr.slice().sort(() => 0.5 - Math.random());
+              return shuffled.slice(0, n);
+            }
+
+            function createGoogleCalUrl(title, date, startTime, endTime) {
+              const start =
+                date.replace(/-/g, "") + "T" + startTime.replace(":", "") + "00";
+              const end =
+                date.replace(/-/g, "") + "T" + endTime.replace(":", "") + "00";
+              return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                title
+              )}&dates=${start}/${end}`;
+            }
+
+            // ルーレット演出付きAI決定
+            function aiRouletteEvent() {
+              const startTime = document.getElementById("start-time").value;
+              const endTime = document.getElementById("end-time").value;
+              if (!selectedDate || !startTime || !endTime) {
+                alert("カレンダーの日付と開始・終了時刻を選択してください。");
+                playSound("sound-error");
+                return;
+              }
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const selDate = new Date(selectedDate);
+              selDate.setHours(0, 0, 0, 0);
+              if (selDate < today) {
+                alert("過去の日付は選択できません。");
+                playSound("sound-error");
+                return;
+              }
+              // ルーレット候補を用意
+              const eventNames = Object.keys(eventXpTable);
+              const rouletteCandidates = getRandomEvents(eventNames, 7);
+              const finalIdx = Math.floor(Math.random() * rouletteCandidates.length);
+
+              // モーダル表示
+              const modalBg = document.getElementById("rouletteModalBg");
+              const rList = document.getElementById("rouletteList");
+              const rFinal = document.getElementById("rouletteFinal");
+              rFinal.textContent = "";
+              rList.innerHTML = "";
+              modalBg.classList.add("active");
+
+              // ルーレットリスト描画
+              rouletteCandidates.forEach((event, idx) => {
+                const div = document.createElement("div");
+                div.className = "roulette-item" + (idx === 0 ? " active" : "");
+                div.innerHTML = `${event}
+                <span class="event-xp">+${eventXpTable[event]}XP</span>
+                <span class="event-cancel-fee">キャンセル料金：${eventCancelFeeTable[event]}円</span>`;
+                rList.appendChild(div);
+              });
+
+              // ルーレットアニメーション
+              let current = 0;
+              let rounds = 0;
+              let totalRounds = 60 + finalIdx; // 最低3周＋ランダム
+              let speed = 80;
+
+              // ここでドラムロール再生
+              playSound('sound-drumroll');
+
+              function spin() {
+                // remove all active
+                for (let i = 0; i < rList.children.length; i++) {
+                  rList.children[i].classList.remove("active");
+                }
+                let idx = current % rouletteCandidates.length;
+                rList.children[idx].classList.add("active");
+                if (rounds < totalRounds) {
+                  current++;
+                  rounds++;
+                  if (rounds > totalRounds - 7) speed += 25; // 減速
+                  setTimeout(spin, speed);
+                  playSound('sound-rollfinish');
+                } else {
+                  // 決定
+                  let decidedIdx = totalRounds % rouletteCandidates.length;
+                  let finalEvent = rouletteCandidates[decidedIdx];
+                  rFinal.innerHTML = `AI番長が選んだイベントは…<br><b>${finalEvent}</b> だ！<br>楽しんでこいよ！`;
+
+                  // 1.5秒後にモーダルを自動で閉じてイベント登録＆Googleカレンダー追加
+                  setTimeout(() => {
+                    modalBg.classList.remove("active");
+                    registeredEvents.push({
+                      date: selectedDate,
+                      start: startTime,
+                      end: endTime,
+                      event: finalEvent,
+                      status: "reserved",
+                    });
+                    localStorage.setItem(
+                      "registeredEvents",
+                      JSON.stringify(registeredEvents)
+                    );
+                    showRegisteredEvents();
+                    renderCalendar(calYear, calMonth);
+                    const url = createGoogleCalUrl(
+                      finalEvent,
+                      selectedDate,
+                      startTime,
+                      endTime
+                    );
+                    window.open(url, "_blank");
+      <<<<<<< HEAD
+                    playSound("sound-select");
+      =======
+      >>>>>>> origin/yuri_soundplay
+                    showBanchoToast(
+                      "🤖",
+                      `AI番長が選んだイベントは…<br><b>${finalEvent}</b> だ！<br>楽しんでこいよ！`
+                    );
+                  }, 1500);
+                }
+              }
+              spin();
+            }
+
+            function showRandomEvents() {
+              const startTime = document.getElementById("start-time").value;
+              const endTime = document.getElementById("end-time").value;
+              if (!selectedDate || !startTime || !endTime) {
+                alert("カレンダーの日付と開始・終了時刻を選択してください。");
+                playSound("sound-error");
+                return;
+              }
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const selDate = new Date(selectedDate);
+              selDate.setHours(0, 0, 0, 0);
+              if (selDate < today) {
+                alert("過去の日付は選択できません。");
+                playSound("sound-cancel");
+                return;
+              }
+              const randomEvents = getRandomEvents(Object.keys(eventXpTable), 5);
+              const eventList = document.getElementById("eventList");
+              eventList.innerHTML = "<h2>イベント候補（1つ選んでくれよな）</h2>";
+              randomEvents.forEach((event) => {
+                const btn = document.createElement("button");
+                btn.className = "event-btn";
+                btn.innerHTML = `${event}
+                <span class="event-xp">+${eventXpTable[event]}XP</span>
+                <span class="event-cancel-fee">キャンセル料金：${eventCancelFeeTable[event]}円</span>`;
+                btn.onclick = () => {
+                  registeredEvents.push({
+                    date: selectedDate,
+                    start: startTime,
+                    end: endTime,
+                    event: event,
+                    status: "reserved",
+                  });
+                  localStorage.setItem(
+                    "registeredEvents",
+                    JSON.stringify(registeredEvents)
+                  );
+                  showRegisteredEvents();
+                  renderCalendar(calYear, calMonth);
+                  playSound("sound-select");
+                  const url = createGoogleCalUrl(
+                    event,
+                    selectedDate,
+                    startTime,
+                    endTime
+                  );
+                  window.open(url, "_blank");
+                };
+                eventList.appendChild(btn);
+              });
+            }
+
+            function participateEvent(idx) {
+              const ev = registeredEvents[idx];
+              if (
+                !ev ||
+                ev.status === "done" ||
+                ev.status === "canceled" ||
+                ev.status === "autocanceled"
+              )
+                return;
+              ev.status = "done";
               localStorage.setItem(
                 "registeredEvents",
                 JSON.stringify(registeredEvents)
               );
+              addXp(eventXpTable[ev.event] || 10, ev.event);
               showRegisteredEvents();
-              renderCalendar(calYear, calMonth);
-              const url = createGoogleCalUrl(
-                finalEvent,
-                selectedDate,
-                startTime,
-                endTime
-              );
-              window.open(url, "_blank");
-              playSound("sound-select");
-              showBanchoToast(
-                "🤖",
-                `AI番長が選んだイベントは…<br><b>${finalEvent}</b> だ！<br>楽しんでこいよ！`
-              );
-            }, 1500);
-          }
-        }
-        spin();
-      }
+            }
 
-      function showRandomEvents() {
-        const startTime = document.getElementById("start-time").value;
-        const endTime = document.getElementById("end-time").value;
-        if (!selectedDate || !startTime || !endTime) {
-          alert("カレンダーの日付と開始・終了時刻を選択してください。");
-          playSound("sound-error");
-          return;
-        }
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selDate = new Date(selectedDate);
-        selDate.setHours(0, 0, 0, 0);
-        if (selDate < today) {
-          alert("過去の日付は選択できません。");
-          playSound("sound-cancel");
-          return;
-        }
-        const randomEvents = getRandomEvents(Object.keys(eventXpTable), 5);
-        const eventList = document.getElementById("eventList");
-        eventList.innerHTML = "<h2>イベント候補（1つ選んでくれよな）</h2>";
-        randomEvents.forEach((event) => {
-          const btn = document.createElement("button");
-          btn.className = "event-btn";
-          btn.innerHTML = `${event}
-          <span class="event-xp">+${eventXpTable[event]}XP</span>
-          <span class="event-cancel-fee">キャンセル料金：${eventCancelFeeTable[event]}円</span>`;
-          btn.onclick = () => {
-            registeredEvents.push({
-              date: selectedDate,
-              start: startTime,
-              end: endTime,
-              event: event,
-              status: "reserved",
-            });
-            localStorage.setItem(
-              "registeredEvents",
-              JSON.stringify(registeredEvents)
-            );
-            showRegisteredEvents();
+            function showRegisteredEvents() {
+              autoCancelExpiredEvents();
+              const list = document.getElementById("registeredList");
+              if (registeredEvents.length === 0) {
+                list.innerHTML = "<h2>登録済みイベント</h2><p>まだありません。</p>";
+                return;
+              }
+              let html = "<h2>登録済みイベント</h2><ul>";
+              const now = new Date();
+              registeredEvents.forEach((ev, idx) => {
+                let statusStr = "";
+                if (ev.status === "done")
+                  statusStr = ' <span style="color:#00ffe7;">[参加済]</span>';
+                if (ev.status === "canceled")
+                  statusStr = ' <span style="color:#d32f2f;">[キャンセル]</span>';
+                if (ev.status === "autocanceled")
+                  statusStr =
+                    ' <span class="autocanceled-label">[強制キャンセル]</span>';
+                html += `<li>${ev.date} ${ev.start}〜${ev.end} <strong>${
+                  ev.event
+                }</strong>
+                +${eventXpTable[ev.event] || 10}XP
+                <span class="cancel-fee-label">キャンセル料金:${
+                  eventCancelFeeTable[ev.event] || 0
+                }円</span>
+                ${statusStr}`;
+                const eventDateTime = new Date(ev.date + "T" + ev.start);
+                // 参加ボタン: statusがreservedかつ今がイベント開始時刻以降かつ強制キャンセルでない
+                if (ev.status === "reserved" && eventDateTime <= now) {
+                  html += `<button class="participate-btn" onclick="participateEvent(${idx})">参加</button>`;
+                }
+                // キャンセルボタン: statusがreservedなら常に表示
+                if (ev.status === "reserved") {
+                  html += `<button class="cancel-btn" onclick="openDangerModal(${idx})">キャンセル</button>`;
+                }
+                html += `</li>`;
+              });
+              html += "</ul>";
+              list.innerHTML = html;
+            }
+
+            function openDangerModal(idx) {
+              playSound("sound-alert");
+              cancelIdx = idx;
+              // モーダルにキャンセル料金も表示
+              const ev = registeredEvents[idx];
+              document.getElementById(
+                "dangerCancelFee"
+              ).innerHTML = `<span>このイベントのキャンセル料金：<b>${
+                eventCancelFeeTable[ev.event] || 0
+              }円</b></span>`;
+              document.getElementById("dangerModal").classList.add("active");
+              setTimeout(() => {
+                document.getElementById("dangerConfirmBtn").focus();
+              }, 100);
+            }
+            function closeDangerModal() {
+              document.getElementById("dangerModal").classList.remove("active");
+              cancelIdx = null;
+            }
+            document.getElementById("dangerCancelBtn").onclick = closeDangerModal;
+            document.getElementById("dangerConfirmBtn").onclick = function () {
+              if (cancelIdx !== null) {
+                // ここでイベント情報を一時変数に保存
+                const ev = registeredEvents[cancelIdx];
+                registeredEvents[cancelIdx].status = "canceled";
+                localStorage.setItem(
+                  "registeredEvents",
+                  JSON.stringify(registeredEvents)
+                );
+                showRegisteredEvents();
+                renderCalendar(calYear, calMonth);
+                closeDangerModal();
+                playSound("sound-cancel");
+                showBanchoToast(
+                  "🥲",
+                  `キャンセルを確定しました<br><span style='font-size:0.95em;'>キャンセル料金：${
+                    eventCancelFeeTable[ev.event] || 0
+                  }円<br>番長はがっかりしてるが、またのご利用を待ってるぜ…</span>`
+                );
+              }
+            };
+
+            function resetEvents() {
+              if (confirm("本当にイベント履歴をリセットしますか？")) {
+                registeredEvents = [];
+                localStorage.setItem(
+                  "registeredEvents",
+                  JSON.stringify(registeredEvents)
+                );
+                showRegisteredEvents();
+                renderCalendar(calYear, calMonth);
+                showBanchoToast(
+                  "🗑️",
+                  "イベント履歴をリセットしたぜ！<br><span style='font-size:0.95em;'>また新たな伝説を作ろうじゃねぇか！</span>"
+                );
+              }
+            }
+            function resetLevel() {
+              if (confirm("本当に番長レベルをリセットしますか？")) {
+                user = { xp: 0, level: 1, participated: [] };
+                localStorage.setItem("banchoUser", JSON.stringify(user));
+                updateLevelUI();
+                showBanchoToast(
+                  "🔄",
+                  "番長レベルをリセットしたぜ！<br><span style='font-size:0.95em;'>またイチから成り上がれ！</span>"
+                );
+              }
+            }
+
+            // 初期化時に強制キャンセルチェック
+            autoCancelExpiredEvents();
+            updateLevelUI();
             renderCalendar(calYear, calMonth);
-            playSound("sound-select");
-            const url = createGoogleCalUrl(
-              event,
-              selectedDate,
-              startTime,
-              endTime
-            );
-            window.open(url, "_blank");
-          };
-          eventList.appendChild(btn);
-        });
-      }
+            showRegisteredEvents();
 
-      function participateEvent(idx) {
-        const ev = registeredEvents[idx];
-        if (
-          !ev ||
-          ev.status === "done" ||
-          ev.status === "canceled" ||
-          ev.status === "autocanceled"
-        )
-          return;
-        ev.status = "done";
-        localStorage.setItem(
-          "registeredEvents",
-          JSON.stringify(registeredEvents)
-        );
-        addXp(eventXpTable[ev.event] || 10, ev.event);
-        showRegisteredEvents();
-      }
+            // 定期的に強制キャンセル判定（1分ごと）
+            setInterval(() => {
+              autoCancelExpiredEvents();
+              showRegisteredEvents();
+            }, 60000);
 
-      function showRegisteredEvents() {
-        autoCancelExpiredEvents();
-        const list = document.getElementById("registeredList");
-        if (registeredEvents.length === 0) {
-          list.innerHTML = "<h2>登録済みイベント</h2><p>まだありません。</p>";
-          return;
-        }
-        let html = "<h2>登録済みイベント</h2><ul>";
-        const now = new Date();
-        registeredEvents.forEach((ev, idx) => {
-          let statusStr = "";
-          if (ev.status === "done")
-            statusStr = ' <span style="color:#00ffe7;">[参加済]</span>';
-          if (ev.status === "canceled")
-            statusStr = ' <span style="color:#d32f2f;">[キャンセル]</span>';
-          if (ev.status === "autocanceled")
-            statusStr =
-              ' <span class="autocanceled-label">[強制キャンセル]</span>';
-          html += `<li>${ev.date} ${ev.start}〜${ev.end} <strong>${
-            ev.event
-          }</strong>
-          +${eventXpTable[ev.event] || 10}XP
-          <span class="cancel-fee-label">キャンセル料金:${
-            eventCancelFeeTable[ev.event] || 0
-          }円</span>
-          ${statusStr}`;
-          const eventDateTime = new Date(ev.date + "T" + ev.start);
-          // 参加ボタン: statusがreservedかつ今がイベント開始時刻以降かつ強制キャンセルでない
-          if (ev.status === "reserved" && eventDateTime <= now) {
-            html += `<button class="participate-btn" onclick="participateEvent(${idx})">参加</button>`;
-          }
-          // キャンセルボタン: statusがreservedなら常に表示
-          if (ev.status === "reserved") {
-            html += `<button class="cancel-btn" onclick="openDangerModal(${idx})">キャンセル</button>`;
-          }
-          html += `</li>`;
-        });
-        html += "</ul>";
-        list.innerHTML = html;
-      }
-
-      function openDangerModal(idx) {
-        playSound("sound-alert");
-        cancelIdx = idx;
-        // モーダルにキャンセル料金も表示
-        const ev = registeredEvents[idx];
-        document.getElementById(
-          "dangerCancelFee"
-        ).innerHTML = `<span>このイベントのキャンセル料金：<b>${
-          eventCancelFeeTable[ev.event] || 0
-        }円</b></span>`;
-        document.getElementById("dangerModal").classList.add("active");
-        setTimeout(() => {
-          document.getElementById("dangerConfirmBtn").focus();
-        }, 100);
-      }
-      function closeDangerModal() {
-        document.getElementById("dangerModal").classList.remove("active");
-        cancelIdx = null;
-      }
-      document.getElementById("dangerCancelBtn").onclick = closeDangerModal;
-      document.getElementById("dangerConfirmBtn").onclick = function () {
-        if (cancelIdx !== null) {
-          // ここでイベント情報を一時変数に保存
-          const ev = registeredEvents[cancelIdx];
-          registeredEvents[cancelIdx].status = "canceled";
-          localStorage.setItem(
-            "registeredEvents",
-            JSON.stringify(registeredEvents)
-          );
-          showRegisteredEvents();
-          renderCalendar(calYear, calMonth);
-          closeDangerModal();
-          playSound("sound-cancel");
-          showBanchoToast(
-            "🥲",
-            `キャンセルを確定しました<br><span style='font-size:0.95em;'>キャンセル料金：${
-              eventCancelFeeTable[ev.event] || 0
-            }円<br>番長はがっかりしてるが、またのご利用を待ってるぜ…</span>`
-          );
-        }
-      };
-
-      function resetEvents() {
-        if (confirm("本当にイベント履歴をリセットしますか？")) {
-          registeredEvents = [];
-          localStorage.setItem(
-            "registeredEvents",
-            JSON.stringify(registeredEvents)
-          );
-          showRegisteredEvents();
-          renderCalendar(calYear, calMonth);
-          showBanchoToast(
-            "🗑️",
-            "イベント履歴をリセットしたぜ！<br><span style='font-size:0.95em;'>また新たな伝説を作ろうじゃねぇか！</span>"
-          );
-        }
-      }
-      function resetLevel() {
-        if (confirm("本当に番長レベルをリセットしますか？")) {
-          user = { xp: 0, level: 1, participated: [] };
-          localStorage.setItem("banchoUser", JSON.stringify(user));
-          updateLevelUI();
-          showBanchoToast(
-            "🔄",
-            "番長レベルをリセットしたぜ！<br><span style='font-size:0.95em;'>またイチから成り上がれ！</span>"
-          );
-        }
-      }
-
-      // 初期化時に強制キャンセルチェック
-      autoCancelExpiredEvents();
-      updateLevelUI();
-      renderCalendar(calYear, calMonth);
-      showRegisteredEvents();
-
-      // 定期的に強制キャンセル判定（1分ごと）
-      setInterval(() => {
-        autoCancelExpiredEvents();
-        showRegisteredEvents();
-      }, 60000);
-
-      window.participateEvent = participateEvent;
-      window.openDangerModal = openDangerModal;
-      window.resetEvents = resetEvents;
-      window.resetLevel = resetLevel;
-      window.aiRouletteEvent = aiRouletteEvent;
-      window.showRandomEvents = showRandomEvents;
+            window.participateEvent = participateEvent;
+            window.openDangerModal = openDangerModal;
+            window.resetEvents = resetEvents;
+            window.resetLevel = resetLevel;
+            window.aiRouletteEvent = aiRouletteEvent;
+            window.showRandomEvents = showRandomEvents;
     </script>
   </body>
 </html>
