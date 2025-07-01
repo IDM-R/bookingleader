@@ -962,6 +962,16 @@
       src="workspace/ビープ音4.mp3"
       preload="auto"
     ></audio>
+    <audio
+      id="sound-drumroll"
+      src="workspace/ドラムロール.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="sound-rollfinish"
+      src="workspace/ロールの閉め.mp3"
+      preload="auto"
+    ></audio>
     <!-- リセットボタン -->
     <div class="reset-btns-fixed">
       <button class="event-reset-btn" onclick="resetEvents()">
@@ -1564,6 +1574,7 @@
         let rounds = 0;
         let totalRounds = 18 + finalIdx; // 最低3周＋ランダム
         let speed = 80;
+        playSound('sound-drumroll');
         function spin() {
           // remove all active
           for (let i = 0; i < rList.children.length; i++) {
@@ -1576,6 +1587,7 @@
             rounds++;
             if (rounds > totalRounds - 7) speed += 25; // 減速
             setTimeout(spin, speed);
+            playSound('sound-rollfinish');
           } else {
             // 決定
             let decidedIdx = totalRounds % rouletteCandidates.length;
